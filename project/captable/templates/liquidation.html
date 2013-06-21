@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% load render_table from django_tables2 %}
+
+{% load captabletags %}
+{% load humanize %}
+
+
+{% block title %}Proforma{% endblock title %}
+{% block liquidation-active %}active{% endblock %}
+
+{% block content %}
+<a href = "{% url 'company' company.slug %}">{{company.name}}</a><br>
+
+
+{% if table %}
+{% render_table table %}
+{% endif %}
+
+{% endblock content %}
+
+{% block footer %}
+Prepared on {% now "r" %}
+{% endblock footer %}
