@@ -1,0 +1,5 @@
+*.log
+*.pot
+*.pyc
+*.DS_Store
+_build*
