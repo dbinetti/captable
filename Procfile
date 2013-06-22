@@ -1,1 +1,1 @@
-web: python project/manage.py run_gunicorn
+web: python project.manage.py run_gunicorn
