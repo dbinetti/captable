@@ -14,6 +14,16 @@ def get_env_variable(var_name):
         error_msg = "Set the {var_name} environment variable".format(var_name=var_name)
         raise ImproperlyConfigured(error_msg)
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'captable',
+        'USER': get_env_variable("DATABASE_USER"),
+        'PASSWORD': get_env_variable("DATABASE_USER"),
+        'HOST': 'localhost',
+        'PORT': '',
+    }
+}
 
 PROJECT_ROOT = Path(__file__).ancestor(3)
 
