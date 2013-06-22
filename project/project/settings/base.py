@@ -17,24 +17,13 @@ def get_env_variable(var_name):
 
 PROJECT_ROOT = Path(__file__).ancestor(3)
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
 )
 
 MANAGERS = ADMINS
-
-DATABASES = {
-    'default': {
-        'ENGINE': '',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    }
-}
 
 ALLOWED_HOSTS = []
 
