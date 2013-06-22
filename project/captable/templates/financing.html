@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% load render_table from django_tables2 %}
+
+{% load captabletags %}
+{% load humanize %}
+
+
+{% block title %}Financing{% endblock title %}
+{% block financing-active %}active{% endblock %}
+
+{% block content %}
+<a href = "{% url 'company' company.slug %}">{{company.name}}</a><br>
+
+{% if proforma %}
+<p>
+Price:  {{proforma.price|price}},
+New Shares: {{proforma.new_shares|shares}},
+New Options: {{proforma.new_options|shares}}
+</p>
+{% endif %}
+
+{% if table %}
+{% render_table table %}
+{% endif %}
+<br><br>
+{% endblock content %}
+
+{% block footer %}
+Prepared on {% now "r" %}
+{% endblock footer %}

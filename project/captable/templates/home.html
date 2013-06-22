@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Home{% endblock title %}
+{% block home-active %}active{% endblock %}
+{% block content %}
+{% if companies %}
+Click on the Company to get started.<br>
+{% for company in companies %}
+<a href="{% url 'company' company.slug %}">{{company}}</a><br>
+{% endfor %}
+{% else %}
+You don't have any companies entered (or don't have permission to access them.)
+See the README tutorial to get started.
+{% endif %}
+
+{% endblock content %}
+{% block footer %} {% endblock footer %}
