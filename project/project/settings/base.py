@@ -17,10 +17,10 @@ def get_env_variable(var_name):
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'captable',
-        'USER': get_env_variable("DATABASE_USER"),
-        'PASSWORD': get_env_variable("DATABASE_USER"),
-        'HOST': 'localhost',
+        'NAME': '',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
         'PORT': '',
     }
 }
