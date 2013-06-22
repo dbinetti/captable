@@ -1,6 +1,8 @@
 # Django settings for project project.
 import os
 
+import dj_database_url
+
 from unipath import Path
 
 from django.core.exceptions import ImproperlyConfigured
@@ -14,20 +16,13 @@ def get_env_variable(var_name):
         error_msg = "Set the {var_name} environment variable".format(var_name=var_name)
         raise ImproperlyConfigured(error_msg)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    }
-}
+DATABASE_URL = get_env_variable("DATABASE_URL")
+
+DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
 
 PROJECT_ROOT = Path(__file__).ancestor(3)
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (

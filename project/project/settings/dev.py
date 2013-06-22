@@ -3,16 +3,6 @@ from .base import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'captable',
-        'USER': get_env_variable("DATABASE_USER"),
-        'PASSWORD': get_env_variable("DATABASE_USER"),
-        'HOST': 'localhost',
-        'PORT': '',
-    }
-}
 
 INSTALLED_APPS += (
     'debug_toolbar',
