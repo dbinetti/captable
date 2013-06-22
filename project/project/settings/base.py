@@ -140,4 +140,5 @@ INSTALLED_APPS = (
     'django_tables2',
     'captable',
     'noncense',
+    'gunicorn',
 )
