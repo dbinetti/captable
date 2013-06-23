@@ -27,6 +27,10 @@ DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
 
+STATIC_ROOT = '/Users/dbinetti/Repos/static'
+
+STATIC_URL = '/static/'
+
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'start'

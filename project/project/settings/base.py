@@ -48,12 +48,8 @@ MEDIA_ROOT = PROJECT_ROOT.child("media")
 
 MEDIA_URL = ''
 
-STATIC_ROOT = PROJECT_ROOT.child("static")
-
-STATIC_URL = '/static/'
-
 STATICFILES_DIRS = (
-    PROJECT_ROOT.child("assets"),
+    # PROJECT_ROOT.child("static"),
 )
 
 STATICFILES_FINDERS = (
