@@ -27,8 +27,6 @@ DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
 
-STATIC_ROOT = '/Users/dbinetti/Repos/static'
+# STATIC_ROOT = '/Users/dbinetti/Repos/static'
 
 STATIC_URL = '/static/'
-
-
