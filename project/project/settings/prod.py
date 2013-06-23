@@ -14,3 +14,9 @@ STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 INSTALLED_APPS += (
     'storages',
 )
+
+STATIC_URL = 'http://' + AWS_STORAGE_BUCKET_NAME + '.s3.amazonaws.com/'
+ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
+
+DEBUG = bool(get_env_variable("DJANGO_DEBUG"))
+TEMPLATE_DEBUG = DEBUG
