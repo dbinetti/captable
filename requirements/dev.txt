@@ -1,11 +1,10 @@
 -r base.txt
 
-coverage==3.6
 django-coverage==1.2.4
 django-debug-toolbar==0.9.4
 django-extensions==1.1.1
 django-nose==1.1
 honcho==0.4.2
-ipython==0.13.2
 Pycco==0.3.0
 Sphinx==1.2b1
+factory-boy==2.0.2
