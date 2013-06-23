@@ -22,7 +22,7 @@ DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
 
 PROJECT_ROOT = Path(__file__).ancestor(3)
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
