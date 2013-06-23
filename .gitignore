@@ -3,4 +3,3 @@
 *.pyc
 *.DS_Store
 _build*
-.env
