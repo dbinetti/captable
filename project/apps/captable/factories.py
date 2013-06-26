@@ -1,11 +1,3 @@
-from .models import (
-    Company,
-    Investor,
-    Shareholder,
-    Transaction,
-    Security,
-    Addition,
-    Certificate)
 
 import factory
 
@@ -14,6 +6,14 @@ import datetime
 from django.utils.text import slugify
 
 from .constants import *
+
+from .models import (
+    Company,
+    Investor,
+    Shareholder,
+    Security,
+    Addition,
+    Certificate)
 
 
 class CompanyFactory(factory.DjangoModelFactory):

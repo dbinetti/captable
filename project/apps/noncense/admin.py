@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .models import MobileUser
 
-from captable.models import Company
+from apps.captable.models import Company
 
 
 class CompanyInline(admin.TabularInline):

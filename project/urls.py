@@ -8,7 +8,7 @@ urlpatterns = patterns(
     '',
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^', include('captable.urls')),
-    url(r'^', include('noncense.urls'))
+    url(r'^', include('apps.captable.urls')),
+    url(r'^', include('apps.noncense.urls'))
 )
 urlpatterns += staticfiles_urlpatterns()

@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 
 
 urlpatterns = patterns(
-    'noncense.views',
+    'apps.noncense.views',
 
 
     url(r'login/$', 'login', name='login'),

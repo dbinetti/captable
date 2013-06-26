@@ -8,7 +8,6 @@ from django.db import models
 from django.db.models import Sum, Max
 from django.db.models.query import QuerySet
 from django.core.urlresolvers import reverse
-
 from django.conf import settings
 
 from .constants import *

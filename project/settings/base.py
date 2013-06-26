@@ -69,9 +69,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'project.urls'
+ROOT_URLCONF = 'urls'
 
-WSGI_APPLICATION = 'project.wsgi.application'
+WSGI_APPLICATION = 'wsgi.application'
 
 TEMPLATE_DIRS = (
     PROJECT_ROOT.child("templates"),
@@ -126,9 +126,8 @@ INSTALLED_APPS = (
     'django.contrib.formtools',
     'south',
     'django_tables2',
-    'captable',
-    'noncense',
-    'gunicorn',
+    'apps.captable',
+    'apps.noncense',
 )
 
 
@@ -137,7 +136,7 @@ LOGIN_REDIRECT_URL = 'start'
 LOGOUT_URL = 'logout'
 
 AUTHENTICATION_BACKENDS = (
-    'noncense.backends.PhoneBackend',
+    'apps.noncense.backends.PhoneBackend',
     'django.contrib.auth.backends.ModelBackend',)
 
 AUTH_USER_MODEL = 'noncense.MobileUser'

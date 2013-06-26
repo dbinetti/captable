@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 
 
 urlpatterns = patterns(
-    'captable.views',
+    'apps.captable.views',
 
     url(r'^$', 'home', name='home'),
 
