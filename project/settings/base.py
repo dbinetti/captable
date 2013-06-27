@@ -69,9 +69,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'project.urls'
+ROOT_URLCONF = 'urls'
 
-WSGI_APPLICATION = 'project.wsgi.application'
+WSGI_APPLICATION = 'wsgi.application'
 
 TEMPLATE_DIRS = (
     PROJECT_ROOT.child("templates"),
@@ -124,23 +124,33 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'django.contrib.humanize',
     'django.contrib.formtools',
-    'south',
+    # 'south',
     'django_tables2',
-    'captable',
-    'noncense',
+    'apps.captable',
 )
 
 
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'start'
+LOGIN_REDIRECT_URL = 'home'
 LOGOUT_URL = 'logout'
 
-AUTHENTICATION_BACKENDS = (
-    'noncense.backends.PhoneBackend',
-    'django.contrib.auth.backends.ModelBackend',)
+##############
+# Noncense settings
+# I use a specialized auth system called 'Noncense'.  Uncomment out the
+# below and update your URLconf if you wish to use the stock Django
+# authentication.
 
-AUTH_USER_MODEL = 'noncense.MobileUser'
+# INSTALLED_APPS += (
+#     'noncense',
+# )
 
-TWILIO_ACCOUNT_SID = get_env_variable("TWILIO_ACCOUNT_SID")
-TWILIO_AUTH_TOKEN = get_env_variable("TWILIO_AUTH_TOKEN")
-TWILIO_FROM_NUMBER = get_env_variable("TWILIO_FROM_NUMBER")
+
+# AUTHENTICATION_BACKENDS = (
+#     'noncense.backends.NonceBackend',
+#     'django.contrib.auth.backends.ModelBackend',)
+
+# AUTH_USER_MODEL = 'noncense.MobileUser'
+
+# TWILIO_ACCOUNT_SID = get_env_variable("TWILIO_ACCOUNT_SID")
+# TWILIO_AUTH_TOKEN = get_env_variable("TWILIO_AUTH_TOKEN")
+# TWILIO_FROM_NUMBER = get_env_variable("TWILIO_FROM_NUMBER")

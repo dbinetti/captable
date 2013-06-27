@@ -1,2 +1,3 @@
-# Install all of our production dependencies only.
+# File must exist for Heroku to discover requirements.
+
 -r requirements/prod.txt

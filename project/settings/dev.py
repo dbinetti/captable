@@ -8,6 +8,7 @@ INSTALLED_APPS += (
     'debug_toolbar',
     'django_nose',
     'django_coverage',
+    'django_extensions',
 )
 
 MIDDLEWARE_CLASSES += (

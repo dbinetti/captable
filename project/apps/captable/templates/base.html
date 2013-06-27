@@ -104,16 +104,13 @@
                         </li>
                         {% endcomment %}
                     </ul>
-                    {% if user.is_authenticated %}
                     <div class="right_nav_login">
-                        {{user.mobile}} - <a href="{% url 'logout' %}">Logout</a>
-                    </div>
+                    {% if user.is_authenticated %}
+                        {{user.username}} - <a href="{% url 'logout' %}">Logout</a>
                     {% else %}
-                    <form class="navbar-form pull-right" method="POST" action="{% url 'login' %}">{% csrf_token %}
-                        <input class="span2" type="text" placeholder="Mobile" name="mobile">
-                        <button type="submit" class="btn">Sign in</button>
-                    </form>
+                        <a href="{% url 'login' %}">Login</a>
                     {% endif %}
+                    </div>
                 {% endblock navbar-inner %}
                 </div><!--/.nav-collapse -->
             </div>
