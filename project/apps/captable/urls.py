@@ -11,6 +11,8 @@ urlpatterns = patterns(
 
     url(r'^$', 'home', name='home'),
 
+    url(r'add_example/$', 'add_example', name='add_example'),
+
     url(r'company/(?P<company>[\w-]+)/$', 'company', name='company'),
 
     url(r'company/(?P<company>[\w-]+)/summary/$', 'summary', name='summary'),
@@ -28,5 +30,6 @@ urlpatterns = patterns(
     url(r'company/(?P<company>[\w-]+)/certificate/(?P<certificate>[\w-]+)/$', 'certificate', name='certificate'),
     url(r'company/(?P<company>[\w-]+)/investor/(?P<investor>[\w-]+)/$', 'investor', name='investor'),
     url(r'company/(?P<company>[\w-]+)/shareholder/(?P<shareholder>[\w-]+)/$', 'shareholder', name='shareholder'),
+
 
 )
