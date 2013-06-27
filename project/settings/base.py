@@ -127,7 +127,6 @@ INSTALLED_APPS = (
     # 'south',
     'django_tables2',
     'apps.captable',
-    # 'apps.noncense',
 )
 
 
@@ -135,8 +134,19 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_URL = 'logout'
 
+##############
+# Noncense settings
+# I use a specialized auth system called 'Noncense'.  Uncomment out the
+# below and update your URLconf if you wish to use the stock Django
+# authentication.
+
+# INSTALLED_APPS += (
+#     'noncense',
+# )
+
+
 # AUTHENTICATION_BACKENDS = (
-#     'apps.noncense.backends.PhoneBackend',
+#     'noncense.backends.NonceBackend',
 #     'django.contrib.auth.backends.ModelBackend',)
 
 # AUTH_USER_MODEL = 'noncense.MobileUser'
@@ -144,5 +154,3 @@ LOGOUT_URL = 'logout'
 # TWILIO_ACCOUNT_SID = get_env_variable("TWILIO_ACCOUNT_SID")
 # TWILIO_AUTH_TOKEN = get_env_variable("TWILIO_AUTH_TOKEN")
 # TWILIO_FROM_NUMBER = get_env_variable("TWILIO_FROM_NUMBER")
-
-# REDIRECT_FIELD_NAME = 'home'
