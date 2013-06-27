@@ -29,16 +29,12 @@ class AdditionInline(admin.TabularInline):
     exclude = ('notes',)
 
 
-class CompanyInline(admin.TabularInline):
-    model = Company.owner.through
-
-
 class CompanyAdmin(admin.ModelAdmin):
     save_on_top = True
     list_display = ['name']
     ordering = ['name']
     prepopulated_fields = {"slug": ("name",)}
-    exclude = ('owner',)
+    filter_horizontal = ('owner',)
 
 
 class InvestorAdmin(admin.ModelAdmin):

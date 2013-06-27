@@ -1,16 +1,30 @@
+import requests
+
 from .models import MobileUser
 
+from .utils import sendcode
 
-class PhoneBackend(object):
-    """
-    Simplified backend that assumes an empheral, session-based authentication
-    such that persistent passwords are not required.
-    Note that calling this method will *always* return an authenticated user.
+class NoncenseBackend(object):
+    """Nonce over SMS authentication backend.
+
+    This backend uses a simplified four-digit nonce sent over
+    SMS to authenticate users.
     """
 
-    def authenticate(self, mobile):
-        user, created = MobileUser.objects.get_or_create(mobile=mobile)
-        return user
+    def authenticate(self, mobile=None):
+        """Authenticate over nonce service
+
+        Authenticates if the user passes against a nonce service.
+        """
+        nonce_user = NonceUser(mobile)
+        if nonce_user.is_authenticated():
+            try:
+                user = MobileUser.objects.get(mobile=mobile)
+            except MobileUser.DoesNotExist:
+                user = MobileUser(mobile=mobile)
+                user.save()
+            return user
+
 
     def get_user(self, user_id):
         try:

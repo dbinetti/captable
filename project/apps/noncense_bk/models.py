@@ -14,7 +14,9 @@ class MobileUserManager(BaseUserManager):
         if not mobile:
             raise ValueError('Users must have a mobile address')
 
-        user = self.model(mobile=mobile)
+        user = self.model(
+            mobile=mobile,
+        )
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -39,10 +41,6 @@ class MobileUser(AbstractBaseUser):
         unique=True,
         db_index=True,
     )
-
-    first_name = models.CharField(blank=True, max_length=25)
-    last_name = models.CharField(blank=True, max_length=25)
-
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 

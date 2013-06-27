@@ -127,20 +127,22 @@ INSTALLED_APPS = (
     'south',
     'django_tables2',
     'apps.captable',
-    'apps.noncense',
+    # 'apps.noncense',
 )
 
 
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'start'
+LOGIN_REDIRECT_URL = 'home'
 LOGOUT_URL = 'logout'
 
-AUTHENTICATION_BACKENDS = (
-    'apps.noncense.backends.PhoneBackend',
-    'django.contrib.auth.backends.ModelBackend',)
+# AUTHENTICATION_BACKENDS = (
+#     'apps.noncense.backends.PhoneBackend',
+#     'django.contrib.auth.backends.ModelBackend',)
 
-AUTH_USER_MODEL = 'noncense.MobileUser'
+# AUTH_USER_MODEL = 'noncense.MobileUser'
 
-TWILIO_ACCOUNT_SID = get_env_variable("TWILIO_ACCOUNT_SID")
-TWILIO_AUTH_TOKEN = get_env_variable("TWILIO_AUTH_TOKEN")
-TWILIO_FROM_NUMBER = get_env_variable("TWILIO_FROM_NUMBER")
+# TWILIO_ACCOUNT_SID = get_env_variable("TWILIO_ACCOUNT_SID")
+# TWILIO_AUTH_TOKEN = get_env_variable("TWILIO_AUTH_TOKEN")
+# TWILIO_FROM_NUMBER = get_env_variable("TWILIO_FROM_NUMBER")
+
+# REDIRECT_FIELD_NAME = 'home'

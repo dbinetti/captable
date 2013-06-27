@@ -38,8 +38,10 @@ from .models import (
 from .constants import *
 
 
+
 def home(request):
-    companies = Company.objects.filter(owner=request.user.id)
+    # companies = Company.objects.filter(owner=request.user.id)
+    companies = Company.objects.all()
     return render(request, 'home.html', {'companies': companies})
 
 
@@ -401,3 +403,4 @@ def certificate(request, company, certificate):
     certificate = get_object_or_404(Certificate, security__company__slug__iexact=company, slug__iexact=certificate)
     transactions = get_list_or_404(Transaction, certificate=certificate)
     return render(request, "certificate.html", {'certificate': certificate, 'transactions': transactions})
+

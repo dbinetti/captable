@@ -1,8 +1,13 @@
 from django.conf.urls import patterns, url
 
 
+
+
 urlpatterns = patterns(
     'apps.captable.views',
+
+
+
 
     url(r'^$', 'home', name='home'),
 
@@ -24,4 +29,9 @@ urlpatterns = patterns(
     url(r'company/(?P<company>[\w-]+)/investor/(?P<investor>[\w-]+)/$', 'investor', name='investor'),
     url(r'company/(?P<company>[\w-]+)/shareholder/(?P<shareholder>[\w-]+)/$', 'shareholder', name='shareholder'),
 
+)
+
+urlpatterns += patterns('',
+    url(r'login/$', 'django.contrib.auth.views.login', name='login'),
+    url(r'logout/$', 'django.contrib.auth.views.logout', name='logout'),
 )

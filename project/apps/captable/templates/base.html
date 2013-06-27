@@ -104,16 +104,20 @@
                         </li>
                         {% endcomment %}
                     </ul>
+                    {% comment %}
                     {% if user.is_authenticated %}
                     <div class="right_nav_login">
                         {{user.mobile}} - <a href="{% url 'logout' %}">Logout</a>
                     </div>
                     {% else %}
-                    <form class="navbar-form pull-right" method="POST" action="{% url 'login' %}">{% csrf_token %}
+                    <form class="navbar-form pull-right" method="POST" action="{% url 'django.contrib.auth.views.login' %}">{% csrf_token %}
                         <input class="span2" type="text" placeholder="Mobile" name="mobile">
+                        <input class="span2" type="text" placeholder="Password" name="password">
                         <button type="submit" class="btn">Sign in</button>
                     </form>
                     {% endif %}
+                    {% endcomment %}
+
                 {% endblock navbar-inner %}
                 </div><!--/.nav-collapse -->
             </div>
