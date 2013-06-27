@@ -6,8 +6,9 @@ from django.shortcuts import (
     get_list_or_404)
 
 from django.http import (
-    HttpResponseServerError,
-    HttpResponseForbidden)
+    HttpResponseServerError)
+
+from django.core.exceptions import PermissionDenied
 
 from django.contrib.auth.decorators import login_required
 
@@ -39,8 +40,10 @@ from .constants import *
 
 
 def home(request):
-    companies = Company.objects.filter(owner=request.user.id)
-    # companies = Company.objects.all()
+    if request.user.is_authenticated():
+        companies = Company.objects.filter(owner=request.user)
+    else:
+        companies = None
     return render(request, 'home.html', {'companies': companies})
 
 
@@ -48,7 +51,7 @@ def home(request):
 def summary(request, company):
     """Renders the summary cap table."""
 
-    company = Company.objects.get(slug__iexact=company)
+    company = get_object_or_404(Company, slug__iexact=company)
     if request.user in company.owner.all():
         securities = Security.objects.filter(
             company=company).order_by(
@@ -58,15 +61,14 @@ def summary(request, company):
         return render(
             request, 'summary.html', {'securities': securities, 'company': company})
     else:
-        return HttpResponseForbidden(
-            "You do not have permission to view that item.")
+        raise PermissionDenied
 
 
 @login_required
 def financing(request, company, new_money, pre_valuation, pool_rata):
     """Renders the financing table"""
 
-    company = Company.objects.get(slug__iexact=company)
+    company = get_object_or_404(Company, slug__iexact=company)
     if request.user in company.owner.all():
         new_money = float(new_money)
         pre_valuation = float(pre_valuation)
@@ -254,14 +256,13 @@ def financing(request, company, new_money, pre_valuation, pool_rata):
             'new_shares': new_investor_shares}
         return render(request, 'financing.html', {'table': table, 'proforma': proforma, 'company': company})
     else:
-        return HttpResponseForbidden(
-            "You do not have permission to view that item.")
+        raise PermissionDenied
 
 
 @login_required
 def liquidation(request, company, purchase_price):
     """Renders the liquidation analysis."""
-    company = Company.objects.get(slug__iexact=company)
+    company = get_object_or_404(Company, slug__iexact=company)
     if request.user in company.owner.all():
         purchase_cash = float(purchase_price)
         round_price = company.price(purchase_cash)
@@ -297,28 +298,26 @@ def liquidation(request, company, purchase_price):
         return render(
             request, 'liquidation.html', {'company': company, 'table': table})
     else:
-        return HttpResponseForbidden(
-            "You do not have permission to view that item.")
+        raise PermissionDenied
 
 
 @login_required
 def investors(request, company):
     """Renders the investor summary table"""
-    company = Company.objects.get(slug__iexact=company)
+    company = get_object_or_404(Company, slug__iexact=company)
     if request.user in company.owner.all():
         investors = get_list_or_404(Investor.objects.filter(
             shareholder__certificate__security__company=company).order_by(
                 'name').distinct())
         return render(request, "investors.html", {'investors': investors, 'company': company})
     else:
-        return HttpResponseForbidden(
-            "You do not have permission to view that item.")
+        raise PermissionDenied
 
 
 @login_required
 def shareholders(request, company):
     """Renders the shareholder summary table"""
-    company = Company.objects.get(slug__iexact=company)
+    company = get_object_or_404(Company, slug__iexact=company)
     if request.user in company.owner.all():
         shareholders = get_list_or_404(Shareholder.objects.filter(
             certificate__security__company=company).order_by(
@@ -327,24 +326,22 @@ def shareholders(request, company):
         RequestConfig(request).configure(table)
         return render(request, "shareholders.html", {'table': table, 'shareholders': shareholders})
     else:
-        return HttpResponseForbidden(
-            "You do not have permission to view that item.")
+        raise PermissionDenied
 
 
 @login_required
 def securities(request, company):
-    company = Company.objects.get(slug__iexact=company)
+    company = get_object_or_404(Company, slug__iexact=company)
     if request.user in company.owner.all():
         securities = get_list_or_404(Security.objects.order_by('security_type'), company=company)
         return render(request, "securities.html", {'securities': securities, 'company': company})
     else:
-        return HttpResponseForbidden(
-            "You do not have permission to view that item.")
+        raise PermissionDenied
 
 
 @login_required
 def certificates(request, company):
-    company = Company.objects.get(slug__iexact=company)
+    company = get_object_or_404(Company, slug__iexact=company)
     if request.user in company.owner.all():
         certificates = get_list_or_404(Certificate.objects.filter(
             security__company=company))
@@ -352,24 +349,21 @@ def certificates(request, company):
         RequestConfig(request).configure(table)
         return render(request, "certificates.html", {'table': table})
     else:
-        return HttpResponseForbidden(
-            "You do not have permission to view that item.")
+        raise PermissionDenied
 
 
 @login_required
 def company(request, company):
-    company = Company.objects.get(slug__iexact=company)
+    company = get_object_or_404(Company, slug__iexact=company)
     if request.user in company.owner.all():
-        company = get_object_or_404(Company, slug__iexact=company)
         return render(request, "company.html", {'company': company})
     else:
-        return HttpResponseForbidden(
-            "You do not have permission to view that item.")
+        raise PermissionDenied
 
 
 @login_required
 def security(request, company, security):
-    company = Company.objects.get(slug__iexact=company)
+    company = get_object_or_404(Company, slug__iexact=company)
     if request.user in company.owner.all():
         security = get_object_or_404(Security, company__slug__iexact=company, slug__iexact=security)
         certificates = get_list_or_404(Certificate, security=security)
@@ -388,40 +382,36 @@ def security(request, company, security):
         RequestConfig(request, paginate={"per_page": 100}).configure(table)
         return render(request, "security.html", {'security': security, 'table': table})
     else:
-        return HttpResponseForbidden(
-            "You do not have permission to view that item.")
+        raise PermissionDenied
 
 
 @login_required
 def investor(request, company, investor):
-    company = Company.objects.get(slug__iexact=company)
+    company = get_object_or_404(Company, slug__iexact=company)
     if request.user in company.owner.all():
         investor = get_object_or_404(Investor, slug__iexact=investor)
         certificates = get_list_or_404(Certificate, shareholder__investor=investor)
         return render(request, "investor.html", {'investor': investor, 'certificates': certificates})
     else:
-        return HttpResponseForbidden(
-            "You do not have permission to view that item.")
+        raise PermissionDenied
 
 
 @login_required
 def shareholder(request, company, shareholder):
-    company = Company.objects.get(slug__iexact=company)
+    company = get_object_or_404(Company, slug__iexact=company)
     if request.user in company.owner.all():
         shareholder = get_object_or_404(Shareholder, slug__iexact=shareholder)
         return render(request, "shareholder.html", {'shareholder': shareholder})
     else:
-        return HttpResponseForbidden(
-            "You do not have permission to view that item.")
+        raise PermissionDenied
 
 
 @login_required
 def certificate(request, company, certificate):
-    company = Company.objects.get(slug__iexact=company)
+    company = get_object_or_404(Company, slug__iexact=company)
     if request.user in company.owner.all():
         certificate = get_object_or_404(Certificate, security__company__slug__iexact=company, slug__iexact=certificate)
         transactions = get_list_or_404(Transaction, certificate=certificate)
         return render(request, "certificate.html", {'certificate': certificate, 'transactions': transactions})
     else:
-        return HttpResponseForbidden(
-            "You do not have permission to view that item.")
+        raise PermissionDenied
