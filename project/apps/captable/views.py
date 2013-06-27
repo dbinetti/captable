@@ -16,9 +16,6 @@ from django_tables2 import RequestConfig
 
 
 from .tables import (
-    # InvestorsTable,
-    # ShareholdersTable,
-    # SecuritiesTable,
     LiquidationTable,
     FinancingTable,
     CertificateTable,
