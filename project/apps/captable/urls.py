@@ -30,8 +30,3 @@ urlpatterns = patterns(
     url(r'company/(?P<company>[\w-]+)/shareholder/(?P<shareholder>[\w-]+)/$', 'shareholder', name='shareholder'),
 
 )
-
-urlpatterns += patterns('',
-    url(r'login/$', 'django.contrib.auth.views.login', name='login'),
-    url(r'logout/$', 'django.contrib.auth.views.logout_then_login', name='logout'),
-)

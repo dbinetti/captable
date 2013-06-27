@@ -140,17 +140,17 @@ LOGOUT_URL = 'logout'
 # below and update your URLconf if you wish to use the stock Django
 # authentication.
 
-# INSTALLED_APPS += (
-#     'noncense',
-# )
+INSTALLED_APPS += (
+    'noncense',
+)
 
 
-# AUTHENTICATION_BACKENDS = (
-#     'noncense.backends.NonceBackend',
-#     'django.contrib.auth.backends.ModelBackend',)
+AUTHENTICATION_BACKENDS = (
+    'noncense.backends.NonceBackend',
+    'django.contrib.auth.backends.ModelBackend',)
 
-# AUTH_USER_MODEL = 'noncense.MobileUser'
+AUTH_USER_MODEL = 'noncense.MobileUser'
 
-# TWILIO_ACCOUNT_SID = get_env_variable("TWILIO_ACCOUNT_SID")
-# TWILIO_AUTH_TOKEN = get_env_variable("TWILIO_AUTH_TOKEN")
-# TWILIO_FROM_NUMBER = get_env_variable("TWILIO_FROM_NUMBER")
+TWILIO_ACCOUNT_SID = get_env_variable("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = get_env_variable("TWILIO_AUTH_TOKEN")
+TWILIO_FROM_NUMBER = get_env_variable("TWILIO_FROM_NUMBER")

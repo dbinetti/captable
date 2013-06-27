@@ -15,11 +15,13 @@ urlpatterns = patterns(
 # Uncomment these two lines and comment the stock url conf below
 # if you wish to use the "Noncense" auth backend.
 
-# urlpatterns += patterns(
-#     url(r'^', include('noncense.urls')),)
+urlpatterns += patterns('',
+    url(r'auth_request/$', 'noncense.views.nonce_request', name='login'),
+    url(r'auth_response/$', 'noncense.views.nonce_response', name='auth_response'),
+)
 
 urlpatterns += patterns(
     '',
-    url(r'login/$', 'django.contrib.auth.views.login', name='login'),
+    # url(r'login/$', 'django.contrib.auth.views.login', name='login'),
     url(r'logout/$', 'django.contrib.auth.views.logout_then_login', name='logout'),
 )
