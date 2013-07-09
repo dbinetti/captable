@@ -2,6 +2,7 @@ from __future__ import division
 
 from django.shortcuts import (
     render,
+    redirect,
     get_object_or_404,
     get_list_or_404)
 
@@ -42,6 +43,15 @@ def home(request):
     else:
         companies = None
     return render(request, 'home.html', {'companies': companies})
+
+def add_example(request):
+    if request.user.is_authenticated():
+        company = Company.objects.get(name="Cyberdyne")
+        company.owner.add(request.user)
+        company.save()
+        return redirect('home')
+    else:
+        return redirect('login')
 
 
 @login_required
