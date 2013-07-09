@@ -108,7 +108,7 @@
                     {% if user.is_authenticated %}
                         {{user.username}} - <a href="{% url 'logout' %}">Logout</a>
                     {% else %}
-                        <a href="{% url 'login' %}">Login</a>
+                        <a href="{% url 'noncense_request' %}">Login</a>
                     {% endif %}
                     </div>
                 {% endblock navbar-inner %}

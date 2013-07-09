@@ -9,6 +9,7 @@ urlpatterns = patterns(
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include('apps.captable.urls')),
+    # url(r'^', include('noncense.urls'))
 )
 
 
@@ -16,8 +17,8 @@ urlpatterns = patterns(
 # if you wish to use the "Noncense" auth backend.
 
 urlpatterns += patterns('',
-    url(r'auth_request/$', 'noncense.views.nonce_request', name='login'),
-    url(r'auth_response/$', 'noncense.views.nonce_response', name='auth_response'),
+    url(r'noncense_request/$', 'noncense.views.noncense_request', name='noncense_request'),
+    url(r'noncense_response/$', 'noncense.views.noncense_response', name='noncense_response'),
 )
 
 urlpatterns += patterns(
