@@ -1,4 +1,4 @@
-distribute==0.7.3
+distribute
 dj-database-url==0.2.1
 django-floppyforms==1.1
 django-tables2==0.13.0
