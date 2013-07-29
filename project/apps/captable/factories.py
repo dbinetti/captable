@@ -8,7 +8,7 @@ from django.utils.text import slugify
 from .constants import *
 
 from .models import (
-    Company,
+    # Company,
     Investor,
     Shareholder,
     Security,
@@ -16,12 +16,12 @@ from .models import (
     Certificate)
 
 
-class CompanyFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Company
-    FACTORY_DJANGO_GET_OR_CREATE = ('name',)
+# class CompanyFactory(factory.DjangoModelFactory):
+#     FACTORY_FOR = Company
+#     FACTORY_DJANGO_GET_OR_CREATE = ('name',)
 
-    name = "Test Company"
-    slug = slugify(unicode(name))
+#     name = "Test Company"
+#     slug = slugify(unicode(name))
 
 
 class InvestorFactory(factory.DjangoModelFactory):

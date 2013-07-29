@@ -36,15 +36,6 @@ class PriceColumn(tables.Column):
         else:
             return '-'
 
-
-class CompaniesTable(tables.Table):
-    name = tables.LinkColumn('company', args=[A('slug')])
-    # name = tables.Column()
-
-    class Meta:
-        attrs = {"class": "table table-condensed table-bordered table-hover table-summary"}
-
-
 # class InvestorsTable(tables.Table):
 #     # name = tables.LinkColumn('investor', args=[A('investor.shareholder.certificate.security.company.slug'), A('id')])
 #     name = tables.Column()
@@ -52,12 +43,12 @@ class CompaniesTable(tables.Table):
 #         attrs = {"class": "table table-condensed table-bordered table-hover table-summary"}
 
 
-# class ShareholdersTable(tables.Table):
-#     name = tables.LinkColumn('shareholder', args=[A('id')])
-#     investor = tables.LinkColumn('investor', args=[A('investor.id')])
+class ShareholdersTable(tables.Table):
+    name = tables.LinkColumn('shareholder', args=[A('id')])
+    investor = tables.LinkColumn('investor', args=[A('investor.id')])
 
-#     class Meta:
-#         attrs = {"class": "table table-condensed table-bordered table-hover table-summary"}
+    class Meta:
+        attrs = {"class": "table table-condensed table-bordered table-hover table-summary"}
 
 
 # class SecuritiesTable(tables.Table):
@@ -68,7 +59,7 @@ class CompaniesTable(tables.Table):
 
 
 class LiquidationTable(tables.Table):
-    name = tables.LinkColumn('investor', args=[A('company'), A('investor_slug')])
+    name = tables.LinkColumn('investor', args=[A('investor_slug')])
     liquidated = SharesColumn()
     proceeds = CurrencyColumn()
     proceeds_rata = RataColumn()
@@ -106,7 +97,7 @@ class FinancingTable(tables.Table):
 
 
 class CertificateTable(tables.Table):
-    name = tables.LinkColumn('certificate', args=[A('security.company'), A('name')])
+    name = tables.LinkColumn('certificate', args=[A('name')])
     current = SharesColumn()
     purchase = CurrencyColumn()
     date = tables.DateColumn()
@@ -118,9 +109,9 @@ class CertificateTable(tables.Table):
 
 
 class CommonTable(tables.Table):
-    name = tables.LinkColumn('certificate', args=[A('security.company'), A('name')])
+    name = tables.LinkColumn('certificate', args=[A('name')])
     date = tables.DateColumn()
-    shareholder = tables.LinkColumn('shareholder', args=[A('security.company.slug'), A('shareholder.slug')])
+    shareholder = tables.LinkColumn('shareholder', args=[A('shareholder.slug')])
     shares = SharesColumn()
     returned = SharesColumn()
     outstanding_shares = SharesColumn()
@@ -134,9 +125,9 @@ class CommonTable(tables.Table):
 
 
 class PreferredTable(tables.Table):
-    name = tables.LinkColumn('certificate', args=[A('security.company'), A('name')])
+    name = tables.LinkColumn('certificate', args=[A('name')])
     date = tables.DateColumn()
-    shareholder = tables.LinkColumn('shareholder', args=[A('security.company.slug'), A('shareholder.slug')])
+    shareholder = tables.LinkColumn('shareholder', args=[A('shareholder.slug')])
     shares = SharesColumn()
     returned = SharesColumn()
     outstanding_shares = SharesColumn()
@@ -151,9 +142,9 @@ class PreferredTable(tables.Table):
 
 
 class ConvertibleTable(tables.Table):
-    name = tables.LinkColumn('certificate', args=[A('security.company'), A('name')])
+    name = tables.LinkColumn('certificate', args=[A('name')])
     date = tables.DateColumn()
-    shareholder = tables.LinkColumn('shareholder', args=[A('security.company.slug'), A('shareholder.slug')])
+    shareholder = tables.LinkColumn('shareholder', args=[A('shareholder.slug')])
     debt = CurrencyColumn()
     accrued = CurrencyColumn()
     forgiven = CurrencyColumn()
@@ -167,9 +158,9 @@ class ConvertibleTable(tables.Table):
 
 
 class WarrantTable(tables.Table):
-    name = tables.LinkColumn('certificate', args=[A('security.company.slug'), A('name')])
+    name = tables.LinkColumn('certificate', args=[A('name')])
     date = tables.DateColumn()
-    shareholder = tables.LinkColumn('shareholder', args=[A('security.company.slug'), A('shareholder.slug')])
+    shareholder = tables.LinkColumn('shareholder', args=[A('shareholder.slug')])
     granted = SharesColumn()
     exercised = SharesColumn()
     cancelled = SharesColumn()
@@ -182,9 +173,9 @@ class WarrantTable(tables.Table):
 
 
 class OptionTable(tables.Table):
-    name = tables.LinkColumn('certificate', args=[A('security.company'), A('name')])
+    name = tables.LinkColumn('certificate', args=[A('name')])
     date = tables.DateColumn()
-    shareholder = tables.LinkColumn('shareholder', args=[A('security.company.slug'), A('shareholder.slug')])
+    shareholder = tables.LinkColumn('shareholder', args=[A('shareholder.slug')])
     granted = SharesColumn()
     exercised = SharesColumn()
     cancelled = SharesColumn()

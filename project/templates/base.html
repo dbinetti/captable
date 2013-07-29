@@ -1,0 +1,61 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    {% block title %}
+    {% endblock title %}
+
+    {% block meta-tags %}
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="">
+      <meta name="author" content="David E. Binetti">
+      <meta name="copyright" content="&copy; 2013, David E. Binetti">
+      {# <meta name="google-site-verification" content="KCGliPeEClMgbq3Ytr5kLv4sZag4alHUBMjMt_y2Db4" /> #}
+    {% endblock meta-tags %}
+
+    {% block robots %}
+      <meta name="robots" content="noindex, nofollow">
+    {% endblock robots %}
+
+    {% block style-libraries %}
+      <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/css/bootstrap.min.css" rel="stylesheet">
+      <link href="{% static 'css/bootstrap-glyphicons.css' %}" rel="stylesheet" media="screen">
+      {# <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet"> #}
+      <link href="{% static 'css/style.css' %}" rel="stylesheet" media="screen">
+    {% endblock style-libraries %}
+
+    {% block styles %}
+      {# <link rel="shortcut icon" href="{% static 'ico/favicon.ico' %}"> #}
+    {% endblock styles %}
+
+  </head>
+
+  <body>
+
+    {% block navbar %}
+      {# {% include 'navbar.html'%} #}
+    {% endblock navbar %}
+
+    {% block notification %}
+    {% endblock notification %}
+
+    {% block content %}
+    {% endblock content %}
+
+    {% block script-libraries %}
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+      <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js"></script>
+    {% endblock script-libraries %}
+
+    {% block scripts %}
+    {% endblock scripts %}
+
+    {% block analytics %}
+    {% endblock analytics %}
+
+  </body>
+
+</html>

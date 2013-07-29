@@ -20,14 +20,14 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 INTERNAL_IPS = ('127.0.0.1',)
 
-ADMINS = (
-    (get_env_variable("FULL_NAME"), get_env_variable("USER_EMAIL")),
-)
-
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
 
-# STATIC_ROOT = '/Users/dbinetti/Repos/static'
+MEDIA_ROOT = PROJECT_ROOT.ancestor(2).child("localstorage").child(PROJECT_NAME).child("media")
+MEDIA_URL = '/media/'
 
+STATIC_ROOT = PROJECT_ROOT.ancestor(2).child("localstorage").child(PROJECT_NAME).child("static")
 STATIC_URL = '/static/'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

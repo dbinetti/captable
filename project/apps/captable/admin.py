@@ -6,7 +6,7 @@ from .models import (
     Transaction,
     Investor,
     Addition,
-    Company,
+    # Company,
     Certificate)
 
 
@@ -29,12 +29,12 @@ class AdditionInline(admin.TabularInline):
     exclude = ('notes',)
 
 
-class CompanyAdmin(admin.ModelAdmin):
-    save_on_top = True
-    list_display = ['name']
-    ordering = ['name']
-    prepopulated_fields = {"slug": ("name",)}
-    filter_horizontal = ('owner',)
+# class CompanyAdmin(admin.ModelAdmin):
+#     save_on_top = True
+#     list_display = ['name']
+#     ordering = ['name']
+#     prepopulated_fields = {"slug": ("name",)}
+#     filter_horizontal = ('owner',)
 
 
 class InvestorAdmin(admin.ModelAdmin):
@@ -54,13 +54,13 @@ class ShareholderAdmin(admin.ModelAdmin):
 
 class SecurityAdmin(admin.ModelAdmin):
     save_on_top = True
-    list_filter = ['company']
+    # list_filter = ['company']
     list_display = (
-        'date', 'company', 'name', 'security_type', 'price_cap',
+        'date', 'name', 'security_type', 'price_cap',
         'discount_rate', 'interest_rate', 'pre')
     ordering = ['date']
     fieldsets = [
-        (None, {'fields': ['name', 'slug', 'date', 'security_type', 'company']}),
+        (None, {'fields': ['name', 'slug', 'date', 'security_type']}),
         ('Preferred', {'fields': ['price_per_share', 'pre', 'conversion_ratio', 'liquidation_preference', 'seniority', 'is_participating', 'participation_cap'], 'classes':['collapse']}),
         ('Debt', {'fields': ['price_cap', 'discount_rate', 'interest_rate', 'default_conversion_price', 'conversion_security'], 'classes':['collapse']}),
     ]
@@ -80,7 +80,7 @@ class CertificateAdmin(admin.ModelAdmin):
 admin.site.register(Shareholder, ShareholderAdmin)
 admin.site.register(Security, SecurityAdmin)
 admin.site.register(Investor, InvestorAdmin)
-admin.site.register(Company, CompanyAdmin)
+# admin.site.register(Company, CompanyAdmin)
 admin.site.register(Transaction)
 admin.site.register(Addition)
 admin.site.register(Certificate, CertificateAdmin)

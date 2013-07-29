@@ -1,12 +1,16 @@
 {% extends 'base.html' %}
 
-
-{% block title %}Security Detail{% endblock title %}
-
+{% block title %}
+  <title>
+    Shareholder Detail
+  </title>
+{% endblock title %}
 
 {% block content %}
-{{security}}, {{security.date}}<br>
-{% for shareholder in security.transaction.shareholder_set.all %}
-{{shareholder}}<br>
-{% endfor %}
+  <div class='container'>
+    {{security}}, {{security.date}}<br>
+    {% for shareholder in security.transaction.shareholder_set.all %}
+      {{shareholder}}<br>
+    {% endfor %}
+  </div><!--/container-->
 {% endblock content %}

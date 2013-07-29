@@ -1,12 +1,17 @@
 {% extends 'base.html' %}
 
-{% block title %}Securities{% endblock title %}
+{% block title %}
+  <title>
+    Security List
+  </title>
+{% endblock title %}
 
 
 {% block content %}
-<a href = "{% url 'company' company.slug %}">{{company.name}}</a><br><br>
-{% for security in securities %}
-<a href="{% url 'security' company.slug security.slug %}">{{security.name}}</a><br>
-{% endfor %}
+  <div class='container'>
+    {% for security in securities %}
+      <a href="{% url 'security' security.slug %}">{{security.name}}</a><br>
+    {% endfor %}
+  </div><!--/container-->
 {% endblock content %}
 

@@ -1,4 +1,3 @@
-# Django settings for project project.
 import os
 
 import dj_database_url
@@ -20,14 +19,9 @@ DATABASE_URL = get_env_variable("DATABASE_URL")
 
 DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
 
-PROJECT_ROOT = Path(__file__).ancestor(3)
+PROJECT_ROOT = Path(__file__).ancestor(2)
 
-ADMINS = (
-)
-
-MANAGERS = ADMINS
-
-ALLOWED_HOSTS = []
+PROJECT_NAME = str(PROJECT_ROOT.ancestor(1).name)
 
 TIME_ZONE = 'America/Los_Angeles'
 
@@ -41,12 +35,8 @@ USE_L10N = True
 
 USE_TZ = True
 
-MEDIA_ROOT = PROJECT_ROOT.child("media")
-
-MEDIA_URL = ''
-
 STATICFILES_DIRS = (
-    # PROJECT_ROOT.child("static"),
+    PROJECT_ROOT.child("static"),
 )
 
 STATICFILES_FINDERS = (
@@ -55,6 +45,10 @@ STATICFILES_FINDERS = (
 )
 
 SECRET_KEY = get_env_variable("SECRET_KEY")
+
+TEMPLATE_DIRS = (
+    PROJECT_ROOT.child("templates"),
+)
 
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -72,10 +66,6 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'urls'
 
 WSGI_APPLICATION = 'wsgi.application'
-
-TEMPLATE_DIRS = (
-    PROJECT_ROOT.child("templates"),
-)
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
@@ -128,29 +118,3 @@ INSTALLED_APPS = (
     'django_tables2',
     'apps.captable',
 )
-
-
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_URL = 'logout'
-
-##############
-# Noncense settings
-# I use a specialized auth system called 'Noncense'.  Uncomment out the
-# below and update your URLconf if you wish to use the stock Django
-# authentication.
-
-INSTALLED_APPS += (
-    'noncense',
-)
-
-
-AUTHENTICATION_BACKENDS = (
-    'noncense.backends.NonceBackend',
-    'django.contrib.auth.backends.ModelBackend',)
-
-AUTH_USER_MODEL = 'noncense.MobileUser'
-
-TWILIO_ACCOUNT_SID = get_env_variable("TWILIO_ACCOUNT_SID")
-TWILIO_AUTH_TOKEN = get_env_variable("TWILIO_AUTH_TOKEN")
-TWILIO_FROM_NUMBER = get_env_variable("TWILIO_FROM_NUMBER")
