@@ -10,7 +10,7 @@
 {% block content %}
   <div class='container'>
     {% for investor in investors %}
-      <a href="{% url 'investor' investor.slug %}">{{investor.name}}</a><br>
+      <a href="{% url 'captable:investor' investor.slug %}">{{investor.name}}</a><br>
     {% endfor %}
   </div><!--/container-->
 {% endblock content %}

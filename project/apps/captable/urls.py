@@ -8,7 +8,7 @@ urlpatterns = patterns(
     url(r'financing/(?P<new_money>\d+),(?P<pre_valuation>\d+),(?P<pool_rata>\d+)', 'financing', name='financing'),
 
     url(r'security/$', 'securities', name='securities'),
-    url(r'investor/$', 'investors', name='investors'),
+    url(r'investor/$', 'investors', name='captable:investors'),
     url(r'shareholder/$', 'shareholders', name='shareholders'),
     url(r'certificate/$', 'certificates', name='certificates'),
 

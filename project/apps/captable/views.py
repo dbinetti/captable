@@ -278,7 +278,7 @@ def liquidation(request, purchase_price):
 def investors(request):
     """Renders the investor summary table"""
     investors = get_list_or_404(Investor.objects.order_by('name'))
-    return render(request, "investors.html", {'investors': investors})
+    return render(request, "captable/investors.html", {'investors': investors})
 
 
 @login_required
@@ -287,20 +287,20 @@ def shareholders(request):
     shareholders = get_list_or_404(Shareholder.objects.order_by('name'))
     table = ShareholdersTable(shareholders)
     RequestConfig(request).configure(table)
-    return render(request, "shareholders.html", {'table': table, 'shareholders': shareholders})
+    return render(request, "captable/shareholders.html", {'table': table, 'shareholders': shareholders})
 
 
 @login_required
 def securities(request):
     securities = get_list_or_404(Security.objects.order_by('security_type'))
-    return render(request, "securities.html", {'securities': securities})
+    return render(request, "captable/securities.html", {'securities': securities})
 
 @login_required
 def certificates(request):
     certificates = get_list_or_404(Certificate.objects.order_by('name'))
     table = CertificateTable(certificates)
     RequestConfig(request).configure(table)
-    return render(request, "certificates.html", {'table': table})
+    return render(request, "captable/certificates.html", {'table': table})
 
 
 @login_required
@@ -320,24 +320,24 @@ def security(request, security):
     else:
         raise HttpResponseServerError("No Securities")
     RequestConfig(request, paginate={"per_page": 100}).configure(table)
-    return render(request, "security.html", {'security': security, 'table': table})
+    return render(request, "captable/security.html", {'security': security, 'table': table})
 
 
 @login_required
 def investor(request, investor):
     investor = get_object_or_404(Investor, slug__iexact=investor)
     certificates = get_list_or_404(Certificate, shareholder__investor=investor)
-    return render(request, "investor.html", {'investor': investor, 'certificates': certificates})
+    return render(request, "captable/investor.html", {'investor': investor, 'certificates': certificates})
 
 
 @login_required
 def shareholder(request, shareholder):
     shareholder = get_object_or_404(Shareholder, slug__iexact=shareholder)
-    return render(request, "shareholder.html", {'shareholder': shareholder})
+    return render(request, "captable/shareholder.html", {'shareholder': shareholder})
 
 
 @login_required
 def certificate(request, certificate):
     certificate = get_object_or_404(Certificate, slug__iexact=certificate)
     transactions = get_list_or_404(Transaction, certificate=certificate)
-    return render(request, "certificate.html", {'certificate': certificate, 'transactions': transactions})
+    return render(request, "captable/certificate.html", {'certificate': certificate, 'transactions': transactions})

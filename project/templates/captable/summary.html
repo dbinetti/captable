@@ -40,7 +40,7 @@
         {% for item in security_by_type.list %}
           <tr class='table-item'>
             <td></td>
-            <td><a href="{% url 'security' item.slug %}">{{item.name}}</a></td>
+            <td><a href="{% url 'captable:security' item.slug %}">{{item.name}}</a></td>
             <td>{{item.conversion_ratio|default_if_none:""}}</td>
             <td>{{item.authorized|default_if_none:""|intcomma}}</td>
             <td>{{item.outstanding|default_if_none:""|floatformat:0|intcomma}}</td>

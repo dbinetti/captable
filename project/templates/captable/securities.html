@@ -10,7 +10,7 @@
 {% block content %}
   <div class='container'>
     {% for security in securities %}
-      <a href="{% url 'security' security.slug %}">{{security.name}}</a><br>
+      <a href="{% url 'captable:security' security.slug %}">{{security.name}}</a><br>
     {% endfor %}
   </div><!--/container-->
 {% endblock content %}

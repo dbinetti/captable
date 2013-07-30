@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django_tables2.utils import A
 
 
-from .templatetags.captabletags import percentage, shares, currency, price
+from templatetags.captabletags import percentage, shares, currency, price
 
 
 class RataColumn(tables.Column):
@@ -44,8 +44,8 @@ class PriceColumn(tables.Column):
 
 
 class ShareholdersTable(tables.Table):
-    name = tables.LinkColumn('shareholder', args=[A('id')])
-    investor = tables.LinkColumn('investor', args=[A('investor.id')])
+    name = tables.LinkColumn('shareholder', args=[A('slug')])
+    investor = tables.LinkColumn('investor', args=[A('investor.slug')])
 
     class Meta:
         attrs = {"class": "table table-condensed table-bordered table-hover table-summary"}
