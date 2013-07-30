@@ -6,9 +6,7 @@ Django==1.5.1
 psycopg2==2.5.1
 python-dateutil==1.5
 South==0.8.1
-twilio==3.5.1
 Unipath==1.0
 Sphinx==1.2b1
-git+git://github.com/dbinetti/django-noncense.git#egg=django-noncense
 ipython==0.13.2
 django-model-utils==1.4.0
