@@ -193,7 +193,7 @@ class Security(models.Model):
         elif self.security_type in [SECURITY_TYPE_CONVERTIBLE]:
             return u'Debt'
         elif self.security_type in [SECURITY_TYPE_OPTION]:
-            return u 'Options'
+            return u'Options'
 
 
 class Addition(models.Model):
