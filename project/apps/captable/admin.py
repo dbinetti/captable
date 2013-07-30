@@ -75,7 +75,7 @@ class CertificateAdmin(admin.ModelAdmin):
         '__unicode__', 'shares', 'returned', 'cash', 'refunded',
         'debt', 'forgiven', 'granted', 'exercised', 'cancelled']
     ordering = ['name']
-    list_filter = ['status', 'security__security_type']
+    list_filter = ['security__security_type']
 
 admin.site.register(Shareholder, ShareholderAdmin)
 admin.site.register(Security, SecurityAdmin)

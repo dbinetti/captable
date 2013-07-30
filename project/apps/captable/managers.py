@@ -161,7 +161,7 @@ class CertificateQuerySet(QuerySet):
 
         # Calculate what the convertible investors will expect per the terms
         # of their debt instrument.
-        discounted = self.exclude(status=STATUS_CONVERTED).discounted(pre_valuation)
+        discounted = self.discounted(pre_valuation)
         convert_rata = discounted / post_valuation
 
         # Add the available options for use in calculations and if
@@ -349,3 +349,83 @@ class CertificateQuerySet(QuerySet):
                 x -= 1
 
         return price
+
+
+# def prof(new_money, pre_valuation, pool_rata):
+#     """Calculate the price and share totals of a prospective financing.
+
+#     This function returns the number and price of new shares created
+#     as a result of a proposed financing.  Proposed financings require two
+#     variables:  the new money and pre-valuation.  For financings, this is
+#     generally called an "X on Y", where X represents the new cash and Y the
+#     pre-valuation.  This function assumes the standard case that all
+#     convertibles and options are "in the pre", meaning that they are
+#     considered as part of the determination of the share price.
+#     """
+
+#     # First, get the certificates
+#     certificate = get_model('captable', 'Certificate')
+#     certificates = certificate.objects.all()
+
+#     # The post valuation is simply the prevaluation plus the new cash.
+#     post_valuation = pre_valuation + new_money
+
+#     # First, calculate what the new investors will expect in terms of
+#     # ownership after the financing has occured.
+#     new_rata = new_money / post_valuation
+
+#     # Calculate what the convertible investors will expect per the terms
+#     # of their debt instrument.
+#     discounted = certificates.discounted(pre_valuation)
+#     convert_rata = discounted / post_valuation
+
+#     # Add the available options for use in calculations and if
+#     # there is no option pool set to zero.
+#     available = certificates.available
+
+#     # Calculate the existing rata of granted shares; the pool must
+#     # be expanded by a concordimant amount to reach the desired
+#     # pool rata.
+#     pre_shares = certificates.outstanding_shares + certificates.outstanding_options + certificates.warrants
+
+#     # Aggregate the rata and determine the total expansion of
+#     # capital from the existing number of outstanding shares
+#     # and available option pool.
+#     combined_rata = new_rata + convert_rata + pool_rata
+#     if pool_rata:
+#         expansion = (combined_rata / (1-combined_rata)) * (pre_shares + 0)
+#     else:
+#         expansion = (combined_rata / (1-combined_rata)) * (pre_shares + available)
+
+#     # Ratably distribute shares such that everyone gets
+#     # what one expects to get.
+#     new_money_shares = (new_rata / combined_rata) * expansion
+#     new_converted_shares = (convert_rata / combined_rata) * expansion
+#     if pool_rata:
+#         new_pool_shares = expansion - new_money_shares - new_converted_shares - available
+#     else:
+#         new_pool_shares = 0
+
+#     # The prorata are the rights that existing investors have to
+#     # ratably buy into the next round should they wish to.  See
+#     # additional explanation and some caveats in the prorata
+#     # method below under the Transaction model.
+#     new_prorata_shares = certificates.prorata(new_money_shares)
+#     new_investor_shares = new_money_shares - new_prorata_shares
+
+#     # Finally, calculate the price of the new offering.
+#     new_price = new_money / new_money_shares
+
+#     return {
+#         'available': available,
+#         'pre_shares': pre_shares,
+#         'expansion': expansion,
+#         'new_rata': new_rata,
+#         'combined_rata': combined_rata,
+#         'new_money_shares': new_money_shares,
+#         'new_prorata_shares': new_prorata_shares,
+#         'new_converted_shares': new_converted_shares,
+#         'new_investor_shares': new_investor_shares,
+#         'new_pool_shares': new_pool_shares,
+#         'price': new_price,
+#     }

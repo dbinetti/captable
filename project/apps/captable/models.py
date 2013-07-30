@@ -255,7 +255,7 @@ class Certificate(models.Model):
     slug = models.SlugField(unique=True, help_text="""
         The slug is automatically generated.""")
     date = models.DateField(blank=True, null=True)
-    status = models.IntegerField(blank=True, null=True, choices=STATUS_CHOICES, default=STATUS_OUTSTANDING)
+    # status = models.IntegerField(blank=True, null=True, choices=STATUS_CHOICES, default=STATUS_OUTSTANDING)
 
     shares = models.FloatField(default=0, help_text="""
         The shares of the transction, as expressed by the
@@ -283,8 +283,8 @@ class Certificate(models.Model):
         often promised before they are officially granted; this boolean allows
         tracking of the promises to sure the option pool is not exceeded.  Set
         this to true when the options are officially sanctioned by the board.""")
-    is_vested = models.BooleanField(default=False, help_text="""
-        Transaction is fully vested""")
+    # is_vested = models.BooleanField(default=False, help_text="""
+        # Transaction is fully vested""")
     vesting_start = models.DateField(blank=True, null=True, help_text="""
         The start date of the vesting""")
     vesting_stop = models.DateField(blank=True, null=True, help_text="""
@@ -341,17 +341,13 @@ class Certificate(models.Model):
         than the number of shares converted in a financing.
         """
 
-        # Proforma and converted transactions don't vest.
-        if self.status != STATUS_OUTSTANDING:
-            return 0
-
         # Preferred stock doesn't vest, as it is used by investors.
-        elif self.security.security_type == SECURITY_TYPE_PREFERRED:
+        if self.security.security_type == SECURITY_TYPE_PREFERRED:
             return self.outstanding_shares
 
         # Convertibles don't vest, but they do convert at the default price
         elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE:
-            return self.outstanding / self.security.default_conversion_price
+            return self.outstanding_debt / self.security.default_conversion_price
 
         else:
             # Rights and shares are essentially equivalent in the vested
@@ -370,8 +366,6 @@ class Certificate(models.Model):
             # executives.  Normal employees generally don't get trigger
             # provisions at all.
             if self.vesting_trigger == TRIGGER_SINGLE:
-                return stake
-            elif self.is_vested:
                 return stake
             else:
                 return stake
@@ -471,32 +465,26 @@ class Certificate(models.Model):
         fully-diluted share price, the demoninator of which assumes
         all securities convert to common.
         """
+        # Preferred stock converts into a multiple of common stock.
+        if self.security.security_type == SECURITY_TYPE_PREFERRED:
+            return self.outstanding_shares * self.security.conversion_ratio
 
-        # Proforma and converted are not relevant.
-        if self.status != STATUS_OUTSTANDING:
-            return None
+        # The as-converted number assumes the default price,
+        # so use the ``exchanged`` function
+        elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE:
+            return self.exchanged()
+
+        # Converted assumes all rights are exercised fully,
+        # even the unvested portion
+        elif self.security.security_type in [
+                SECURITY_TYPE_OPTION,
+                SECURITY_TYPE_WARRANT]:
+            return self.granted - self.cancelled - self.exercised
+
+        # All that remains is common stock, which
+        # by definition requires no conversion.
         else:
-
-            # Preferred stock converts into a multiple of common stock.
-            if self.security.security_type == SECURITY_TYPE_PREFERRED:
-                return self.outstanding_shares * self.security.conversion_ratio
-
-            # The as-converted number assumes the default price,
-            # so use the ``exchanged`` function
-            elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE:
-                return self.exchanged()
-
-            # Converted assumes all rights are exercised fully,
-            # even the unvested portion
-            elif self.security.security_type in [
-                    SECURITY_TYPE_OPTION,
-                    SECURITY_TYPE_WARRANT]:
-                return self.granted - self.cancelled - self.exercised
-
-            # All that remains is common stock, which
-            # by definition requires no conversion.
-            else:
-                return self.outstanding_shares
+            return self.outstanding_shares
 
     @property
     def liquidated(self):
@@ -511,9 +499,7 @@ class Certificate(models.Model):
 
         if self.security.security_type == SECURITY_TYPE_PREFERRED:
             return self.shares * self.security.conversion_ratio
-        elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE and self.status == STATUS_CONVERTED:
-            return self.exchanged(self.security.conversion_security.pre, self.security.conversion_security.price_per_share)
-        elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE and self.status != STATUS_CONVERTED:
+        elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE:
             return self.exchanged()
         elif self.security.security_type == SECURITY_TYPE_WARRANT:
             return self.granted
@@ -535,34 +521,30 @@ class Certificate(models.Model):
         stock (hence the name 'preferred'.)  This function calculates
         the amount of the cash preference per the terms of the security.
         """
-        if self.status != STATUS_OUTSTANDING:
-            return None
-        else:
-
-            # We use the ``price_per_share`` variable here since the
-            # original investment vehicle may have been a convertible
-            # and the original cash paid may not be relevant.
-            # Note: this is an important concept which can affect future
-            # financings.  The term is called "liquidation overhang"
-            # and you should learn more about it.  Yokum Taku at WSGR
-            # has proposed  solutions to avoid it and you should
-            # read about them here:
-            # http://www.startupcompanylawyer.com/category/convertible-note-bridge-financing/
-            if self.security.security_type == SECURITY_TYPE_PREFERRED:
-                return (
-                    self.outstanding_shares
-                    * self.security.price_per_share
-                    * self.security.liquidation_preference)
-            elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE:
-                try:
-                    # If the stock converts it will share the same preference
-                    # as its parent security.
-                    return self.outstanding_debt * self.security.conversion_security.liquidation_preference
-                    # But if there is no parent then it reverts to the debt itself
-                    # This basically means that the preference is calling
-                    # the loan itself due and payable (with interest.)
-                except:
-                    return self.outstanding_debt
+        # We use the ``price_per_share`` variable here since the
+        # original investment vehicle may have been a convertible
+        # and the original cash paid may not be relevant.
+        # Note: this is an important concept which can affect future
+        # financings.  The term is called "liquidation overhang"
+        # and you should learn more about it.  Yokum Taku at WSGR
+        # has proposed  solutions to avoid it and you should
+        # read about them here:
+        # http://www.startupcompanylawyer.com/category/convertible-note-bridge-financing/
+        if self.security.security_type == SECURITY_TYPE_PREFERRED:
+            return (
+                self.outstanding_shares
+                * self.security.price_per_share
+                * self.security.liquidation_preference)
+        elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE:
+            try:
+                # If the stock converts it will share the same preference
+                # as its parent security.
+                return self.outstanding_debt * self.security.conversion_security.liquidation_preference
+                # But if there is no parent then it reverts to the debt itself
+                # This basically means that the preference is calling
+                # the loan itself due and payable (with interest.)
+            except:
+                return self.accrued
 
     @property
     def accrued(self):
@@ -602,28 +584,22 @@ class Certificate(models.Model):
         """
         if self.security.security_type != SECURITY_TYPE_CONVERTIBLE:
             return None
-
         else:
-            # First we need to check if there is a financing event.
-            if self.status == STATUS_CONVERTED:
-                # Next we choose between the two conversion approaches
+            # Next we choose between the two conversion approaches
 
-                # Choice A is the the value of the original loan in
-                # equivalent dollars per the discount rate.
-                discounted = self.outstanding_debt / (1-self.security.discount_rate)
+            # Choice A is the the value of the original loan in
+            # equivalent dollars per the discount rate.
+            discounted = self.outstanding_debt / (1-self.security.discount_rate)
 
-                # Choice B is the value of the original loan in
-                # equivalent dollars per the capped value in relation
-                # to the pre-valuation
-                pre_valuation = self.security.conversion_security.pre
-                capped = self.outstanding_debt * (pre_valuation/self.security.price_cap)
+            # Choice B is the value of the original loan in
+            # equivalent dollars per the capped value in relation
+            # to the pre-valuation
+            pre_valuation = self.security.conversion_security.pre
+            capped = self.outstanding_debt * (pre_valuation/self.security.price_cap)
 
-                # Then, simply pick whichever approach is best and return that.
-                return max(discounted, capped)
-            # And if there isn't a financing event then
-            # there is no discount to apply; simply return the accrued value.
-            else:
-                return self.outstanding
+            # Then, simply pick whichever approach is best and return that.
+            return max(discounted, capped)
+
 
     def exchanged(self, pre_valuation=None, price=None):
         """Calculate the shares from a convertible note.
@@ -655,15 +631,13 @@ class Certificate(models.Model):
         #  Don't convert what can't be converted
         if self.security.security_type != SECURITY_TYPE_CONVERTIBLE:
             return None
-        # elif self.status == STATUS_CONVERTED:
-        #     return 0
         elif pre_valuation:
             # Get the discounted value according to that method,
             # and divide by the price to calculate the number of shares.
             return self.discounted(pre_valuation) / price
         else:
             # Use the accrued value divided by the default price.
-            return self.outstanding / self.security.default_conversion_price
+            return self.outstanding_debt / self.security.default_conversion_price
 
     def prorata(self, new_shares):
         """Return the Investor's prorata.
@@ -688,9 +662,7 @@ class Certificate(models.Model):
         if self.is_prorata:
 
             # Calculation of the rata is done on a fully-diluted basis.
-            # fully_diluted = self.security.company.diluted
-            # TODO fix this
-            fully_diluted = 1000000
+            fully_diluted = self.converted
 
             # Get the current rata
             current_rata = self.outstanding_shares / fully_diluted
@@ -706,15 +678,10 @@ class Certificate(models.Model):
         Calculates the proceeds from a transaction given a particular purchase
         price.
         """
-
-        # Ignore the irrelevant.
-        if self.status != STATUS_OUTSTANDING:
-            return None
+        if self.liquidated:  # Return the proceeds: vested shares times price.
+            return self.liquidated * self.objects.price(purchase_price)[self.security.seniority]
         else:
-            if self.liquidated:  # Return the proceeds: vested shares times price.
-                return self.liquidated * self.security.company.price(purchase_price)[self.security.seniority]
-            else:
-                return 0
+            return 0
 
 
 class Transaction(models.Model):
