@@ -10,3 +10,5 @@ twilio==3.5.1
 Unipath==1.0
 Sphinx==1.2b1
 git+git://github.com/dbinetti/django-noncense.git#egg=django-noncense
+ipython==0.13.2
+django-model-utils==1.4.0

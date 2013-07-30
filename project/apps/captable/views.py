@@ -15,7 +15,6 @@ from django.contrib.auth.decorators import login_required
 
 from django_tables2 import RequestConfig
 
-
 from .tables import (
     ShareholdersTable,
     LiquidationTable,
@@ -64,21 +63,7 @@ def financing(request, new_money, pre_valuation, pool_rata):
     certificates = Certificate.objects.select_related()
 
     # get the proforma
-    # TODO rebuild this function
-    # proforma = company.proforma(new_money, pre_valuation, pool_rata)
-    proforma = {
-            'available': 10000000,
-            'pre_shares': 5000000,
-            'expansion': 5000000,
-            'new_rata': .2,
-            'combined_rata': .2,
-            'new_money_shares': 2000000,
-            'new_prorata_shares': 1000000,
-            'new_converted_shares': 0,
-            'new_investor_shares': 2000000,
-            'new_pool_shares': 0,
-            'price': 2
-    }
+    proforma = certificates.proforma(new_money, pre_valuation, pool_rata)
 
     # populate the variables
     price = proforma['price']
@@ -87,11 +72,10 @@ def financing(request, new_money, pre_valuation, pool_rata):
     new_money_shares = proforma['new_money_shares']
     new_prorata_shares = proforma['new_prorata_shares']
     new_converted_shares = proforma['new_converted_shares']
+    available = proforma['available']
 
     # set the 'globals'
-    # TODO another rebuild
-    # total_pre_shares = company.diluted
-    total_pre_shares = 10000000
+    total_pre_shares = available + certificates.converted
 
     total_pre_cash = certificates.paid
 
@@ -176,8 +160,7 @@ def financing(request, new_money, pre_valuation, pool_rata):
         })
 
     # Create and append the warrants list
-    # warrants_pre_shares = company.warrants
-    warrants_pre_shares = 1000
+    warrants_pre_shares = certificates.warrants
     warrants_pre_rata = warrants_pre_shares / total_pre_shares
     warrants_post_shares = warrants_pre_shares
     warrants_post_rata = warrants_pre_shares / total_post_shares
@@ -194,8 +177,7 @@ def financing(request, new_money, pre_valuation, pool_rata):
 
     })
     # Create and append the options granted list
-    # granted_pre_shares = company.outstanding_options
-    granted_pre_shares = 1000000
+    granted_pre_shares = certificates.outstanding_options
     granted_pre_rata = granted_pre_shares / total_pre_shares
     granted_post_shares = granted_pre_shares
     granted_post_rata = granted_pre_shares / total_post_shares
@@ -213,8 +195,7 @@ def financing(request, new_money, pre_valuation, pool_rata):
     })
 
     # Create and append the available option list
-    # available_pre_shares = company.available
-    available_pre_shares = 1000000
+    available_pre_shares = certificates.available
     available_pre_rata = available_pre_shares / total_pre_shares
     available_post_shares = available_pre_shares + new_pool_shares
     available_post_rata = available_post_shares / total_post_shares
@@ -260,9 +241,9 @@ def financing(request, new_money, pre_valuation, pool_rata):
 def liquidation(request, purchase_price):
     """Renders the liquidation analysis."""
     purchase_cash = float(purchase_price)
-    # round_price = company.price(purchase_cash)
+    round_price = Certificate.objects.price(purchase_cash)
     # TODO rebuild the pricing function
-    round_price = {0:1, 1:1, 2:1}
+    # round_price = {0:1, 1:1, 2:1}
 
     investors = Investor.objects.select_related()
 

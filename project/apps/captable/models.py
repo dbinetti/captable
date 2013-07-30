@@ -2,391 +2,20 @@ from __future__ import division
 
 import datetime
 
-# from dateutil.relativedelta import relativedelta
-
 from django.db import models
 from django.db.models import Sum, Max
 from django.db.models.query import QuerySet
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
+from model_utils.managers import PassThroughManager
+
 from .constants import *
 
-
-# class Company(models.Model):
-#     """Company represents the corporation for the capitalization.
-
-#     Company is self-explanatory; there should be only one cap table
-#     per company.
-#     """
-#     name = models.CharField(max_length=200, help_text="""
-#         The name of your company.""")
-#     slug = models.SlugField(unique=True, help_text="""
-#         This will be automatically populated for you based on the company
-#         name.  Feel free to overwrite, but the slug must be URL friendly.""")
-#     owner = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, null=True)
-
-#     @property
-#     def outstanding_shares(self):
-#         """Calculates the total of issued and outstanding_shares shares"""
-#         return Certificate.objects.select_related().filter(
-#             security__company=self).outstanding_shares
-
-#     @property
-#     def pool(self):
-#         """Calculates the total number of authorized options."""
-#         pool = self.security_set.filter(
-#             security_type=SECURITY_TYPE_OPTION).aggregate(
-#                 pool=Sum('addition__authorized'))['pool']
-#         return pool
-
-#     @property
-#     def granted(self):
-#         """Calculates the total number of granted options.
-
-#         We need to differentiate between the concept of granted and
-#         extended because options that have been granted and exercised
-#         (either due to early exercise or normal exercise) are still counted
-#         against the total available option pool.  Meaning: the number
-#         of available options does not increase simply because those options
-#         have turned into shares.  The total number of options in the pool has
-#         a fixed limit to avoid inadvertent dilution"""
-
-#         certificates = Certificate.objects.select_related().filter(
-#             security__company=self,
-#             security__security_type=SECURITY_TYPE_OPTION).aggregate(
-#                 t=Sum('granted'))['t']
-#         return certificates
-
-#     @property
-#     def exercised(self):
-#         """Calculates the total amount of exercised options"""
-#         certificates = Certificate.objects.select_related().filter(
-#             security__company=self,
-#             security__security_type=SECURITY_TYPE_OPTION).aggregate(
-#                 t=Sum('exercised'))['t']
-#         return certificates
-
-#     @property
-#     def cancelled(self):
-#         """Calculates the granted but not exercised (ie, outstanding) options"""
-#         certificates = Certificate.objects.select_related().filter(
-#             security__company=self,
-#             security__security_type=SECURITY_TYPE_OPTION).aggregate(
-#                 t=Sum('cancelled'))['t']
-#         return certificates
-
-#     @property
-#     def outstanding_options(self):
-#         """Calculates the granted but not exercised (ie, outstanding) options"""
-#         # TODO Normally this would be called 'outstanding', but that is
-#         # an overloaded term.
-#         if self.granted:
-#             return self.granted - self.exercised - self.cancelled
-#         else:
-#             return 0
-
-#     @property
-#     def warrants(self):
-#         """Calculates total warrants issued"""
-#         certificates = Certificate.objects.select_related().filter(
-#             security__company=self)
-#         warrants = sum(filter(
-#             None, [c.outstanding_warrants for c in certificates]))
-#         if warrants:
-#             return warrants
-#         else:
-#             return 0
-
-#     @property
-#     def available(self):
-#         """Calculates the remaining options in the option pool."""
-#         pool = self.pool
-#         if pool:
-#             return pool - self.granted + self.cancelled
-#         else:
-#             return 0
-
-#     def exchanged(self, pre_valuation=None, price=None):
-#         """Calculates shares created in default liquidation"""
-#         return Certificate.objects.select_related().filter(
-#             security__company=self).exchanged(pre_valuation, price)
-
-#     @property
-#     def converted(self):
-#         return Certificate.objects.select_related().filter(
-#             security__company=self).converted
-
-#     @property
-#     def vested(self):
-#         """Calculates shares created in default liquidation"""
-#         return Certificate.objects.select_related().filter(
-#             security__company=self).vested
-
-#     @property
-#     def diluted(self):
-#         """Calculated the total number of shares fully diluted.
-
-#         The fully diluted total represents the absolute highest number
-#         of shares in the event that all shares which could be issued
-#         were in fact issued.  This means all preferred stock converts
-#         with its conversion ratio, all debt converts at the default price,
-#         all options and warrants are fully vested, and includes all options
-#         that could be distributed from the remaining option pool.  The only
-#         number not considered in fully diluted total are authorized but
-#         not issued stock.  (This is the case because any stock issuance
-#         must still be approved by the board, and thus this is not
-#         considered fully dilutive.)
-#         """
-#         return sum(filter(None, [
-#             self.converted,
-#             self.available]))
-
-#     @property
-#     def available_rata(self):
-#         """Calculates the available option pool rata"""
-#         return self.available / self.diluted
-
-#     @property
-#     def enabled(self):
-#         """Calcluate the equity that is distributable.
-
-#         I'm running out of synonyms here, but basically this represents
-#         everything except debt.  It is the total diluted shares without
-#         considering any default convesion of convertibles.
-#         """
-#         return sum(filter(
-#             None, [
-#                 self.outstanding,
-#                 self.outstanding_options,
-#                 self.warrants,
-#                 self.available]))
-
-#     def price(self, purchase_price):
-#         """Calculate the per-security purchase price in liquidation.
-
-#         In the event of a liquidation different classes of stock are
-#         treated differently.  This function produces the price of
-#         each security per the terms under which it was offered.
-#         """
-
-#         # First, gather all the transactions for this company.
-#         certificates = Certificate.objects.select_related().filter(
-#             security__company=self.id)
-
-#         # Set the intial values for the variables that will be used
-#         # within the liquidation loop.
-#         residual_cash = purchase_price
-#         residual_shares = certificates.liquidated
-
-#         # Initiate the output variable
-#         price = {}
-
-#         # Determine the priority of the most senior security.
-#         x = Security.objects.select_related().filter(
-#             company=self.id).aggregate(
-#                 t=Max('seniority'))['t']
-
-#         # We are now going to loop through all transactions, grouped
-#         # and ordered by security
-#         while x > 0:
-
-#             # Determine the price per share of whatever is left at
-#             # this point.  This number serves as the threshold for
-#             # all of the conditional logic.
-#             residual_price = residual_cash / residual_shares
-
-#             # Now filter for all the transactions at this level of seniority.
-#             tranch_transactions = certificates.filter(security__seniority=x)
-
-#             # And set the number of shares and preference accordingly.
-#             tranch_shares = tranch_transactions.liquidated
-#             tranch_preference = tranch_transactions.preference
-
-#             # We also need to check for participation, and set those
-#             # variables for the conditional logic.
-#             is_participating = False
-#             for t in tranch_transactions:
-#                 if t.security.is_participating:
-#                     is_participating = True
-#                     participation_cap = t.security.participation_cap
-#                     break
-
-#             # With the prep work done, it's time for the core algorthm.
-
-#             # First we need to see if there's enough cash to cover the
-#             # current group of securities.  If not, then we rata out
-#             # whatever cash remains and stop distributing proceeds by
-#             # zeroing the price for all reamining securities.
-#             if tranch_preference > residual_cash:
-#                 residual_price = residual_cash / tranch_shares
-#                 price.update({x: residual_price})
-#                 x -= 1
-#                 while x > 0:
-#                     price.update({x: 0.0})
-#                     x -= 1
-#                 break
-
-#             # Next, we consider participation.
-#             elif is_participating:
-
-#                 # And check if there is a cap.
-#                 if participation_cap:
-
-#                     # If the capped price is less than the residual price,
-#                     # the security will convert to common.
-#                     if (tranch_preference * participation_cap) / tranch_shares < residual_price:
-#                         while x > 0:
-#                             price.update({x: residual_price})
-#                             x -= 1
-#                         break
-
-#                     # If the price is below the cap then first set the preference,
-#                     # add the remaining residual pro-rata up to the cap,
-#                     # reduce the residual cash and shares accordingly,
-#                     # decrement the counter to indicate this group is finished,
-#                     # and send through the loop again to handle the remaining.
-#                     else:
-#                         part_price = sum([
-#                             tranch_preference / tranch_shares,
-#                             (residual_cash - tranch_preference) / residual_shares])
-#                         residual_cash -= part_price * tranch_shares
-#                         residual_shares -= tranch_shares
-#                         price.update({x: part_price})
-#                         x -= 1
-
-#                 # If there is no cap then the security is fully
-#                 # participating, which means it first takes the
-#                 # preference and then the proceeds on top -- there
-#                 # is no conversion because the investor can have
-#                 # his cake and eat it too.  Avoid this term if you can.
-#                 else:
-#                     part_price = sum([
-#                         tranch_preference / tranch_shares,
-#                         (residual_cash - tranch_preference) / residual_shares])
-#                     residual_cash -= tranch_preference
-#                     price.update({x: part_price})
-#                     x -= 1
-
-#             # if the overall price per share, diluted, exceeds the preference then
-#             # any preferred stock will convert to common, meaning
-#             # that all stock in all remaining tranches will be distributed
-#             # ratably.  We do need to check for the capped participation
-#             # condition first: there are cases where it's best to take
-#             # the capped participation preference rather than convert.
-#             # Note: it is assumed that if the top-preference converts
-#             # to common, then all subsequent securities convert to common.
-#             # If this isn't the case then the lawyers probably weren't doing
-#             # their job.
-#             elif (tranch_preference / tranch_shares) < residual_price:
-#                 while x > 0:
-#                     price.update({x: residual_price})
-#                     x -= 1
-#                 break
-
-#             # The final condition means there is enough cash to cover
-#             # the preference, but not enough to convert to common.  So,
-#             # give the current tranch the preference, reduce the number
-#             # of shares and cash remaining by what was distributed,
-#             # and send through the loop again.
-#             else:
-#                 price.update({x: tranch_preference / tranch_shares})
-#                 residual_cash -= tranch_preference
-#                 residual_shares -= tranch_shares
-#                 x -= 1
-
-#         return price
-
-#     def proforma(self, new_money, pre_valuation, pool_rata):
-#         """Calculate the price and share totals of a prospective financing.
-
-#         This function returns the number and price of new shares created
-#         as a result of a proposed financing.  Proposed financings require two
-#         variables:  the new money and pre-valuation.  For financings, this is
-#         generally called an "X on Y", where X represents the new cash and Y the
-#         pre-valuation.  This function assumes the standard case that all
-#         convertibles and options are "in the pre", meaning that they are
-#         considered as part of the determination of the share price.
-#         """
-
-#         # The post valuation is simply the prevaluation plus the new cash.
-#         post_valuation = pre_valuation + new_money
-
-#         # First, calculate what the new investors will expect in terms of
-#         # ownership after the financing has occured.
-#         new_rata = new_money / post_valuation
-
-#         # Calculate what the convertible investors will expect per the terms
-#         # of their debt instrument.
-#         discounted = Certificate.objects.filter(
-#             security__company=self.id).exclude(
-#                 status=STATUS_CONVERTED).discounted(pre_valuation)
-#         convert_rata = discounted / post_valuation
-
-#         # Add the available options for use in calculations and if
-#         # there is no option pool set to zero.
-#         if self.available:
-#             available = self.available
-#         else:
-#             available = 0
-
-#         # Calculate the existing rata of granted shares; the pool must
-#         # be expanded by a concordimant amount to reach the desired
-#         # pool rata.
-#         pre_shares = self.outstanding_shares + self.outstanding_options + self.warrants
-
-#         # Aggregate the rata and determine the total expansion of
-#         # capital from the existing number of outstanding shares
-#         # and available option pool.
-#         combined_rata = new_rata + convert_rata + pool_rata
-#         if pool_rata:
-#             expansion = (combined_rata / (1-combined_rata)) * (pre_shares + 0)
-#         else:
-#             expansion = (combined_rata / (1-combined_rata)) * (pre_shares + available)
-
-#         # Ratably distribute shares such that everyone gets
-#         # what one expects to get.
-#         new_money_shares = (new_rata / combined_rata) * expansion
-#         new_converted_shares = (convert_rata / combined_rata) * expansion
-#         if pool_rata:
-#             new_pool_shares = expansion - new_money_shares - new_converted_shares - available
-#         else:
-#             new_pool_shares = 0
-
-#         # The prorata are the rights that existing investors have to
-#         # ratably buy into the next round should they wish to.  See
-#         # additional explanation and some caveats in the prorata
-#         # method below under the Transaction model.
-#         new_prorata_shares = Certificate.objects.filter(
-#             security__company=self.id).prorata(new_money_shares)
-#         new_investor_shares = new_money_shares - new_prorata_shares
-
-#         # Finally, calculate the price of the new offering.
-#         new_price = new_money / new_money_shares
-
-#         return {
-#             'available': available,
-#             'pre_shares': pre_shares,
-#             'expansion': expansion,
-#             'new_rata': new_rata,
-#             'combined_rata': combined_rata,
-#             'new_money_shares': new_money_shares,
-#             'new_prorata_shares': new_prorata_shares,
-#             'new_converted_shares': new_converted_shares,
-#             'new_investor_shares': new_investor_shares,
-#             'new_pool_shares': new_pool_shares,
-#             'price': new_price,
-#         }
-
-#     def get_absolute_url(self):
-#         return reverse('captable.views.company', args=[str(self.id)])
-
-#     def __unicode__(self):
-#         return self.name
-
-#     class Meta:
-#         ordering = ['name']
-#         verbose_name_plural = "Companies"
+from .managers import (
+    SecurityQuerySet,
+    CertificateQuerySet,
+)
 
 
 class Investor(models.Model):
@@ -412,7 +41,7 @@ class Investor(models.Model):
         The name of the contact person at the firm.""")
 
     def get_absolute_url(self):
-        return reverse('captable.views.investor', args=[str(self.id)])
+        return reverse('investor', args=[str(self.slug)])
 
     def __unicode__(self):
         return self.name
@@ -437,7 +66,7 @@ class Shareholder(models.Model):
         Every shareholder has a parent Investor.""")
 
     def get_absolute_url(self):
-        return reverse('captable.views.shareholder', args=[str(self.id)])
+        return reverse('shareholder', args=[str(self.slug)])
 
     def __unicode__(self):
         return self.name
@@ -460,19 +89,26 @@ class Security(models.Model):
     SECURITY_TYPE = (
         ('Equity', (
             (SECURITY_TYPE_COMMON, 'Common'),
-            (SECURITY_TYPE_PREFERRED, 'Preferred'))),
+            (SECURITY_TYPE_PREFERRED, 'Preferred'),
+            )
+        ),
         ('Debt', (
-            (SECURITY_TYPE_CONVERTIBLE, 'Convertible'),)),
+            (SECURITY_TYPE_CONVERTIBLE, 'Convertible'),
+            )
+        ),
         ('Rights', (
             (SECURITY_TYPE_OPTION, 'Option'),
-            (SECURITY_TYPE_WARRANT, 'Warrant'),)),)
+            (SECURITY_TYPE_WARRANT, 'Warrant'),
+            )
+        ),
+    )
 
     name = models.CharField(max_length=50, help_text="""
         The name of the round of funding.
         Common names are Series A, Series Seed, Founder Stock,
         Bridge Loan, Option Round A, Bridge Warrants, Convertible,
         or any other way to which the round is commonly referred.""")
-    slug = models.SlugField(help_text="""
+    slug = models.SlugField(unique=True, help_text="""
         The slug is automatically generated based on the security name,
         which you can overwrite.""")
     date = models.DateField(default=datetime.date.today)
@@ -518,17 +154,29 @@ class Security(models.Model):
         Specific to debt, the default conversion price upon change of control before conversion.""")
     pre = models.FloatField(blank=True, null=True, help_text="""
         The pre-money valuation.""")
-    notes = models.TextField(blank=True)
+    notes = models.TextField(blank=True, help_text="""
+        A free-form notes field.""")
     seniority = models.IntegerField(blank=True, default=1, help_text="""
         Securities liquidate in a paricular order when the company exits.  This
         indicates the sequence of liquidiation, with a higher number
         representing more senior security.  Common stock typically is
         liquidated last, and has a seniority of '1' (the default seniority.)""")
-    # company = models.ForeignKey(Company, help_text="""
-    #     The parent company to which this security belongs.""")
     conversion_security = models.ForeignKey('self', blank=True, null=True, help_text="""
         The security into which this security converts.  This is often
         not yet known; if so do not enter anything here.""")
+
+    objects = PassThroughManager.for_queryset_class(SecurityQuerySet)()
+
+    class Meta:
+        verbose_name_plural = "Securities"
+        ordering = ['date']
+
+    def __unicode__(self):
+        return "{security}".format(
+            security=self.name)
+
+    def get_absolute_url(self):
+        return reverse('security', args=[str(self.slug)])
 
     @property
     def security_class(self):
@@ -541,43 +189,11 @@ class Security(models.Model):
                   actual ownership.
         """
         if self.security_type in [SECURITY_TYPE_COMMON, SECURITY_TYPE_PREFERRED, SECURITY_TYPE_WARRANT]:
-            return 'Equity'
+            return u'Equity'
         elif self.security_type in [SECURITY_TYPE_CONVERTIBLE]:
-            return 'Debt'
+            return u'Debt'
         elif self.security_type in [SECURITY_TYPE_OPTION]:
-            return 'Options'
-
-    @property
-    def authorized(self):
-        authorized = Addition.objects.select_related().filter(
-            security=self.id).aggregate(
-                t=Sum('authorized'))['t']
-        return authorized
-
-    @property
-    def outstanding_shares(self):
-        return Certificate.objects.filter(
-            security=self.id).outstanding_shares
-
-    @property
-    def converted(self):
-        return Certificate.objects.filter(
-            security=self.id).converted
-
-    def exchanged(self, pre_valuation=None, price=None):
-        return Certificate.objects.filter(
-            security=self.id).exchanged(pre_valuation, price)
-
-    def get_absolute_url(self):
-        return reverse('captable.views.security', args=[str(self.id)])
-
-    def __unicode__(self):
-        return "{security}".format(
-            security=self.name)
-
-    class Meta:
-        verbose_name_plural = "Securities"
-        ordering = ['date']
+            return u 'Options'
 
 
 class Addition(models.Model):
@@ -599,8 +215,8 @@ class Addition(models.Model):
     security = models.ForeignKey(Security, blank=True, null=True, help_text="""
         The underlying security to which the addition applies.""")
 
-    def get_absolute_url(self):
-        return reverse('captable.views.addition', args=[str(self.id)])
+    class Meta:
+        ordering = ['date']
 
     def __unicode__(self):
         return "{authorized:,} of {security} on {date}".format(
@@ -608,83 +224,8 @@ class Addition(models.Model):
             security=self.security,
             date=self.date)
 
-    class Meta:
-        ordering = ['date']
-
-
-class CertificateMixin(object):
-
-    @property
-    def liquidated(self):
-        """Calculates the as-converted share totals"""
-        certificates = self.select_related()
-        return sum(filter(
-            None, [t.liquidated for t in certificates]))
-
-    @property
-    def preference(self):
-        certificates = self.select_related()
-        return sum(filter(
-            None, [t.preference for t in certificates]))
-
-    @property
-    def paid(self):
-        certificates = self.select_related()
-        return sum(filter(
-            None, [t.paid for t in certificates]))
-
-    @property
-    def outstanding_debt(self):
-        certificates = self.select_related()
-        return sum(filter(
-            None, [t.outstanding_debt for t in certificates]))
-
-    @property
-    def converted(self):
-        certificates = self.select_related()
-        return sum(filter(
-            None, [t.converted for t in certificates]))
-
-    def discounted(self, pre_valuation=None):
-        certificates = self.select_related()
-        return sum(filter(
-            None, [t.discounted(pre_valuation) for t in certificates]))
-
-    def prorata(self, new_shares):
-        certificates = self.select_related()
-        return sum(filter(
-            None, [t.prorata(new_shares) for t in certificates]))
-
-    def exchanged(self, pre_valuation, price):
-        certificates = self.select_related()
-        return sum(filter(
-            None, [t.exchanged(pre_valuation, price) for t in certificates]))
-
-    @property
-    def vested(self):
-        certificates = self.select_related()
-        return sum(filter(
-            None, [t.vested for t in certificates]))
-
-    @property
-    def outstanding_shares(self):
-        certificates = self.select_related()
-        return sum(filter(
-            None, [t.outstanding_shares for t in certificates]))
-
-    def proceeds(self, purchase_price):
-        certificates = self.select_related()
-        return sum(filter(
-            None, [t.proceeds(purchase_price) for t in certificates]))
-
-
-class CertificateQuerySet(QuerySet, CertificateMixin):
-    pass
-
-
-class CertificateManager(models.Manager, CertificateMixin):
-    def get_query_set(self):
-        return CertificateQuerySet(self.model, using=self._db)
+    def get_absolute_url(self):
+        return reverse('addition', args=[str(self.id)])
 
 
 class Certificate(models.Model):
@@ -711,7 +252,7 @@ class Certificate(models.Model):
 
     name = models.CharField(max_length=200, help_text="""
         This is a unique name/serial number for the certificate.""")
-    slug = models.SlugField(help_text="""
+    slug = models.SlugField(unique=True, help_text="""
         The slug is automatically generated.""")
     date = models.DateField(blank=True, null=True)
     status = models.IntegerField(blank=True, null=True, choices=STATUS_CHOICES, default=STATUS_OUTSTANDING)
@@ -766,7 +307,19 @@ class Certificate(models.Model):
         The date the certificate converted.""")
     security = models.ForeignKey(Security)
     shareholder = models.ForeignKey(Shareholder)
-    objects = CertificateManager()
+
+    objects = PassThroughManager.for_queryset_class(CertificateQuerySet)()
+
+    class Meta:
+        ordering = ['name']
+
+    def __unicode__(self):
+        return '{certificate} - {shareholder}'.format(
+            certificate=self.name, shareholder=self.shareholder.name)
+
+    def get_absolute_url(self):
+        return reverse('certificate', args=[str(self.slug)])
+
 
     @property
     def vested(self):
@@ -1136,6 +689,7 @@ class Certificate(models.Model):
 
             # Calculation of the rata is done on a fully-diluted basis.
             # fully_diluted = self.security.company.diluted
+            # TODO fix this
             fully_diluted = 1000000
 
             # Get the current rata
@@ -1162,33 +716,27 @@ class Certificate(models.Model):
             else:
                 return 0
 
-    def __unicode__(self):
-        return '{certificate} - {shareholder}'.format(
-            certificate=self.name, shareholder=self.shareholder.name)
-
-    class Meta:
-        ordering = ['name']
-
 
 class Transaction(models.Model):
     """Transactional notes related to a certificate.
 
     Originally this model served to track each atomic transaction.  For
-    simplicity it has been downgraded to a logging field, where notes
+    simplicity it has been downgraded to a logger, where notes
     related to any changes in Certificate instances may be recorded.
     """
 
     date = models.DateField(default=datetime.date.today)
-    notes = models.TextField(blank=True)
+    notes = models.TextField(blank=True, help_text="""
+        A free form notes field.""")
     certificate = models.ForeignKey(Certificate, help_text="""
         The certificate to which this transaction is related.""")
 
-    def get_absolute_url(self):
-        return reverse('captable.views.transaction', args=[str(self.id)])
+    class Meta:
+        ordering = ['date']
 
     def __unicode__(self):
         return '{certificate}'.format(
             certificate=self.certificate.name)
 
-    class Meta:
-        ordering = ['date']
+    def get_absolute_url(self):
+        return reverse('transaction', args=[str(self.id)])
