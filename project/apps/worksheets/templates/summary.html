@@ -2,30 +2,49 @@
 {% load humanize %}
 {% load captabletags %}
 
+
 {% block title %}
   <title>
     Summary Capitalization
   </title>
 {% endblock title %}
 
+
 {% block summary-active %}
   active
 {% endblock summary-active %}
 
+
 {% block content %}
   <div class='container'>
-    {# <a href = "{% url 'company' company.slug %}">{{company.name}}</a><br> #}
     <table class="table table-bordered table-hover table-summary">
     <caption>Summary Capitalization</caption>
       <thead>
         <tr>
           <th>Type</th>
-          <th>Series Name</th>
-          <th>Conversion Ratio</th>
-          <th>Authorized</th>
-          <th>Shares Outstanding</th>
-          <th>as Converted</th>
-          <th>Rata Diluted</th>
+          <th>Series Name <i class='glyphicon glyphicon-info-sign' rel='popover' title='Description'
+            data-content='This is the name to which the class of security is generally referred.'></i></th>
+          <th>Conversion Ratio <i class='glyphicon glyphicon-info-sign' rel='popover' title='foo'
+            data-content='Certain classes of securites (usually preferred stock) will convert into
+            common shares at a multiple.  The conversion ratio refers to that multiple.'></th>
+          <th>Authorized <i class='glyphicon glyphicon-info-sign' rel='popover' title='Description'
+            data-content='Authorized means the number of shares that the board has approved for distribution.
+            The number of authorized shares of common and preferred stock does not really matter; it is there
+            simply as a legal reference.  However, it matters a great deal for the option pool, since these
+            options may be distributed at any time without further board approval and as such can have a great
+            impact on dilution.'></th>
+          <th>Shares Outstanding <i class='glyphicon glyphicon-info-sign' rel='popover' title='Description'
+            data-content='The shares outstanding represent the number of shares that have been issued
+            to stockholders and as such represent the true ownership of the company.  This is the number that
+            matters for equity (as opposed to the "authorized" number, which matters more for options.'></th>
+          <th>as Converted <i class='glyphicon glyphicon-info-sign' rel='popover' title='Description'
+            data-content='This represents the absolute largest possible number of shares that could
+            be in play under a liquidation event.  For instance, if preferred stock has a conversion ratio
+            that ratio would be applied here.  The same for convertible debt, which would convert into the
+            relevant equity class here.  The basic idea is to create the "fully diluted" condition, so that
+            investors can see how far their position could be diluted under that scenario.'></th>
+          <th>Rata Diluted <i class='glyphicon glyphicon-info-sign' rel='popover' title='Description'
+            data-content='This is simply the percentage of the fully diluted condition.'></th>
         </tr>
       </thead>
       <tbody>
