@@ -80,3 +80,11 @@ body {
     float: right;
     color: #8d8d8d;
 }
+
+
+/*Adds popover support to glyphicons*/
+
+[rel="popover"] {
+  cursor: pointer;
+  display:inline-block; /* chrome-fix */
+}

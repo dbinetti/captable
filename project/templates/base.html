@@ -23,12 +23,11 @@
     {% block style-libraries %}
       <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/css/bootstrap.min.css" rel="stylesheet">
       <link href="{% static 'css/bootstrap-glyphicons.css' %}" rel="stylesheet" media="screen">
-      {# <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet"> #}
-      <link href="{% static 'css/style.css' %}" rel="stylesheet" media="screen">
+      <link href="{% static 'css/main.css' %}" rel="stylesheet" media="screen">
     {% endblock style-libraries %}
 
     {% block styles %}
-      {# <link rel="shortcut icon" href="{% static 'ico/favicon.ico' %}"> #}
+
     {% endblock styles %}
 
   </head>
@@ -36,7 +35,6 @@
   <body>
 
     {% block navbar %}
-      {# {% include 'navbar.html'%} #}
     {% endblock navbar %}
 
     {% block notification %}
@@ -51,6 +49,7 @@
     {% endblock script-libraries %}
 
     {% block scripts %}
+      <script type="text/javascript" src="{% static 'js/main.js' %}"></script>
     {% endblock scripts %}
 
     {% block analytics %}
