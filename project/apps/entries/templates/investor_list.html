@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load render_table from django_tables2 %}
 
 {% block title %}
   <title>
@@ -6,12 +7,9 @@
   </title>
 {% endblock title %}
 
-
 {% block content %}
   <div class='container'>
-    {% for investor in investors %}
-      <a href="{% url 'captable:investor' investor.slug %}">{{investor.name}}</a><br>
-    {% endfor %}
+    {% render_table table %}
   </div><!--/container-->
 {% endblock content %}
 

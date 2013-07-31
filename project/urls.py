@@ -12,7 +12,8 @@ urlpatterns = patterns(
     url(r'^$', TemplateView.as_view(template_name='home.html'), name='home'),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^', include('apps.captable.urls', namespace='captable')),
+    url(r'^', include('apps.entries.urls',)),
+    url(r'^', include('apps.worksheets.urls',)),
 )
 
 urlpatterns += staticfiles_urlpatterns()

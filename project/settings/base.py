@@ -116,5 +116,6 @@ INSTALLED_APPS = (
     'django.contrib.formtools',
     # 'south',
     'django_tables2',
-    'apps.captable',
+    'apps.entries',
+    'apps.worksheets',
 )

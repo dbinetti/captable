@@ -6,35 +6,23 @@ from django.shortcuts import (
     get_object_or_404,
     get_list_or_404)
 
-from django.http import (
-    HttpResponseServerError)
-
-from django.core.exceptions import PermissionDenied
-
 from django.contrib.auth.decorators import login_required
 
 from django_tables2 import RequestConfig
 
-from .tables import (
-    ShareholdersTable,
-    LiquidationTable,
-    FinancingTable,
-    CertificateTable,
-    CommonTable,
-    PreferredTable,
-    ConvertibleTable,
-    WarrantTable,
-    OptionTable)
+from constants import *
 
-from .models import (
+from apps.entries.models import (
     Transaction,
     Shareholder,
     Security,
     Investor,
     Certificate)
 
-from .constants import *
-
+from .tables import (
+    LiquidationTable,
+    FinancingTable,
+)
 
 @login_required
 def summary(request):
@@ -42,7 +30,7 @@ def summary(request):
 
     securities = Security.objects.order_by('security_type', 'date')
     return render(
-        request, 'summary.html', {'securities': securities})
+        request, 'worksheets/summary.html', {'securities': securities})
 
 
 @login_required
@@ -233,7 +221,7 @@ def financing(request, new_money, pre_valuation, pool_rata):
         'price': price,
         'new_options': (available_post_shares - available_pre_shares),
         'new_shares': new_investor_shares}
-    return render(request, 'financing.html', {'table': table, 'proforma': proforma})
+    return render(request, 'worksheets/financing.html', {'table': table, 'proforma': proforma})
 
 
 
@@ -271,73 +259,5 @@ def liquidation(request, purchase_price):
     table = LiquidationTable(liquidation)
     RequestConfig(request, paginate={"per_page": 100}).configure(table)
     return render(
-            request, 'liquidation.html', {'table': table})
+            request, 'worksheets/liquidation.html', {'table': table})
 
-
-@login_required
-def investors(request):
-    """Renders the investor summary table"""
-    investors = get_list_or_404(Investor.objects.order_by('name'))
-    return render(request, "captable/investors.html", {'investors': investors})
-
-
-@login_required
-def shareholders(request):
-    """Renders the shareholder summary table"""
-    shareholders = get_list_or_404(Shareholder.objects.order_by('name'))
-    table = ShareholdersTable(shareholders)
-    RequestConfig(request).configure(table)
-    return render(request, "captable/shareholders.html", {'table': table, 'shareholders': shareholders})
-
-
-@login_required
-def securities(request):
-    securities = get_list_or_404(Security.objects.order_by('security_type'))
-    return render(request, "captable/securities.html", {'securities': securities})
-
-@login_required
-def certificates(request):
-    certificates = get_list_or_404(Certificate.objects.order_by('name'))
-    table = CertificateTable(certificates)
-    RequestConfig(request).configure(table)
-    return render(request, "captable/certificates.html", {'table': table})
-
-
-@login_required
-def security(request, security):
-    security = get_object_or_404(Security, slug__iexact=security)
-    certificates = get_list_or_404(Certificate, security=security)
-    if security.security_type == SECURITY_TYPE_COMMON:
-        table = CommonTable(certificates)
-    elif security.security_type == SECURITY_TYPE_PREFERRED:
-        table = PreferredTable(certificates)
-    elif security.security_type == SECURITY_TYPE_CONVERTIBLE:
-        table = ConvertibleTable(certificates)
-    elif security.security_type == SECURITY_TYPE_WARRANT:
-        table = WarrantTable(certificates)
-    elif security.security_type == SECURITY_TYPE_OPTION:
-        table = OptionTable(certificates)
-    else:
-        raise HttpResponseServerError("No Securities")
-    RequestConfig(request, paginate={"per_page": 100}).configure(table)
-    return render(request, "captable/security.html", {'security': security, 'table': table})
-
-
-@login_required
-def investor(request, investor):
-    investor = get_object_or_404(Investor, slug__iexact=investor)
-    certificates = get_list_or_404(Certificate, shareholder__investor=investor)
-    return render(request, "captable/investor.html", {'investor': investor, 'certificates': certificates})
-
-
-@login_required
-def shareholder(request, shareholder):
-    shareholder = get_object_or_404(Shareholder, slug__iexact=shareholder)
-    return render(request, "captable/shareholder.html", {'shareholder': shareholder})
-
-
-@login_required
-def certificate(request, certificate):
-    certificate = get_object_or_404(Certificate, slug__iexact=certificate)
-    transactions = get_list_or_404(Transaction, certificate=certificate)
-    return render(request, "captable/certificate.html", {'certificate': certificate, 'transactions': transactions})

@@ -10,7 +10,7 @@ from django.conf import settings
 
 from model_utils.managers import PassThroughManager
 
-from .constants import *
+from constants import *
 
 from .managers import (
     SecurityQuerySet,
