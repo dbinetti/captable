@@ -24,16 +24,16 @@ from .tables import (
     FinancingTable,
 )
 
-@login_required
+# @login_required
 def summary(request):
     """Renders the summary cap table."""
 
     securities = Security.objects.order_by('security_type', 'date')
     return render(
-        request, 'worksheets/summary.html', {'securities': securities})
+        request, 'summary.html', {'securities': securities})
 
 
-@login_required
+# @login_required
 def financing(request, new_money, pre_valuation, pool_rata):
     """Renders the financing table"""
 
@@ -221,11 +221,11 @@ def financing(request, new_money, pre_valuation, pool_rata):
         'price': price,
         'new_options': (available_post_shares - available_pre_shares),
         'new_shares': new_investor_shares}
-    return render(request, 'worksheets/financing.html', {'table': table, 'proforma': proforma})
+    return render(request, 'financing.html', {'table': table, 'proforma': proforma})
 
 
 
-@login_required
+# @login_required
 def liquidation(request, purchase_price):
     """Renders the liquidation analysis."""
     purchase_cash = float(purchase_price)
@@ -259,5 +259,5 @@ def liquidation(request, purchase_price):
     table = LiquidationTable(liquidation)
     RequestConfig(request, paginate={"per_page": 100}).configure(table)
     return render(
-            request, 'worksheets/liquidation.html', {'table': table})
+            request, 'liquidation.html', {'table': table})
 
