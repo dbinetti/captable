@@ -10,16 +10,13 @@ from django.conf import settings
 
 from model_utils.managers import PassThroughManager
 
-from constants import *
+from .constants import *
 
 from .managers import (
     SecurityQuerySet,
     CertificateQuerySet,
-)
-
-from apps.worksheets.managers import (
     share_price,
-    proforma
+    proforma as proforma2
 )
 
 class Investor(models.Model):

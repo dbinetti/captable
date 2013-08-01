@@ -1,7 +1,11 @@
 from django.conf.urls import patterns, url
 
 urlpatterns = patterns(
-    'apps.entries.views',
+    'apps.captable.views',
+
+    url(r'summary/$', 'summary', name='summary'),
+    url(r'liquidation/(?P<purchase_price>\d+)$', 'liquidation', name='liquidation'),
+    url(r'financing/(?P<new_money>\d+),(?P<pre_valuation>\d+),(?P<pool_rata>\d+)', 'financing', name='financing'),
 
     url(r'security/$', 'security_list', name='security_list'),
     url(r'investor/$', 'investor_list', name='investor_list'),

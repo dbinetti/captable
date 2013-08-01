@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from apps.entries.factories import *
+from apps.captable.factories import *
 
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -13,51 +13,50 @@ one_year_ago = today - relativedelta(years=1)
 two_years_ago = today - relativedelta(years=2)
 five_years_ago = today - relativedelta(years=5)
 
-
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
         self.common = CommonSecurity(
             addition__authorized=100000000,
-            name="Common Stock"
+            name="Common Stock",
         )
 
-        self.preferred = PreferredSecurity(
-            addition__authorized=5000000,
-            name="Preferred Stock",
-            price_per_share=.5
+        self.convertible = ConvertibleSecurity(
+            name="Convertible Debt",
+            default_conversion_price=.5,
+            price_cap=5000000
         )
 
         self.options = OptionSecurity(
             addition__authorized=1000000,
-            name="Option Plan"
+            name="Option Plan",
         )
 
         self.investorA = InvestorFactory(
-            name="Joe Founder"
+            name="Sam Founder"
         )
 
         self.investorB = InvestorFactory(
-            name="Jane Founder"
+            name="Sarah Founder"
         )
 
         self.investorC = InvestorFactory(
-            name="Venture Partners"
+            name="Peter Angel"
         )
 
         self.shareholderA = ShareholderFactory(
-            name="Joe Founder",
+            name="Sam Founder",
             investor=self.investorA
         )
 
         self.shareholderB = ShareholderFactory(
-            name="Jane Founder",
+            name="Sarah Founder",
             investor=self.investorB
         )
 
         self.shareholderC = ShareholderFactory(
-            name="VP Fund III",
+            name="Peter Angel",
             investor=self.investorC
         )
 
@@ -80,12 +79,11 @@ class Command(BaseCommand):
         )
 
         self.certificateC = CertificateFactory(
-            security=self.preferred,
+            security=self.convertible,
             shareholder=self.shareholderC,
-            shares=2000000,
-            cash=1000000,
+            debt=1000000,
             date=one_year_ago,
             vesting_start=one_year_ago
         )
 
-        self.stdout.write("Successfully created Alpha Tech")
+        self.stdout.write("Successfully created Beta Tech")

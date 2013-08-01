@@ -5,7 +5,7 @@ import datetime
 
 from django.utils.text import slugify
 
-from constants import *
+from .constants import *
 
 from .models import (
     # Company,
