@@ -605,7 +605,8 @@ class Certificate(models.Model):
             # Choice B is the value of the original loan in
             # equivalent dollars per the capped value in relation
             # to the pre-valuation
-            pre_valuation = self.security.pre
+            if not pre_valuation:
+                pre_valuation = self.security.pre
             capped = self.outstanding_debt * (pre_valuation/self.security.price_cap)
 
             # Then, simply pick whichever approach is best and return that.

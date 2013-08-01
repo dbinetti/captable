@@ -5,7 +5,7 @@ import datetime
 
 from django.utils.text import slugify
 
-from .constants import *
+from constants import *
 
 from .models import (
     # Company,
@@ -26,18 +26,18 @@ from .models import (
 
 class InvestorFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Investor
-    FACTORY_DJANGO_GET_OR_CREATE = ('name',)
+    FACTORY_DJANGO_GET_OR_CREATE = ('slug',)
 
-    name = "Test Investor"
-    slug = slugify(unicode(name))
+    name = factory.Sequence(lambda n: unicode('Test Investor {0}').format(n))
+    slug = factory.LazyAttribute(lambda a: slugify(unicode(a.name)))
 
 
 class ShareholderFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Shareholder
-    FACTORY_DJANGO_GET_OR_CREATE = ('name',)
+    FACTORY_DJANGO_GET_OR_CREATE = ('slug',)
 
-    name = "Test Shareholder"
-    slug = slugify(unicode(name))
+    name = factory.Sequence(lambda n: unicode('Test Shareholder {0}').format(n))
+    slug = factory.LazyAttribute(lambda a: slugify(unicode(a.name)))
     investor = factory.SubFactory(InvestorFactory)
 
 
@@ -46,29 +46,28 @@ class AdditionFactory(factory.DjangoModelFactory):
     FACTORY_DJANGO_GET_OR_CREATE = ('security',)
 
     date = datetime.date.today()
-    authorized = 1000
+    authorized = 100000000
 
 
 class SecurityFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Security
-    FACTORY_DJANGO_GET_OR_CREATE = ('name', 'company')
+    FACTORY_DJANGO_GET_OR_CREATE = ('slug',)
 
-    name = "Test Security"
-    slug = slugify(unicode(name))
+    name = factory.Sequence(lambda n: 'Test Security {0}'.format(n))
+    slug = factory.LazyAttribute(lambda a: slugify(unicode(a.name)))
     date = datetime.date.today()
     security_type = SECURITY_TYPE_COMMON
     seniority = 1
-    company = factory.SubFactory(CompanyFactory)
     addition = factory.RelatedFactory(AdditionFactory, 'security')
 
 
 class CertificateFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Certificate
 
-    name = factory.Sequence(lambda n: 'CERT-{num}'.format(num=n))
-    slug = slugify(unicode(name))
+    name = factory.Sequence(lambda n: 'CERT-{0}'.format(n))
+    slug = factory.LazyAttribute(lambda a: slugify(unicode(a.name)))
     date = datetime.date.today()
-    shares = 1000
+    shares = 10000
     shareholder = factory.SubFactory(ShareholderFactory)
     security = factory.SubFactory(SecurityFactory)
     vesting_start = datetime.date.today()
@@ -115,7 +114,6 @@ class ConvertibleSecurity(SecurityFactory):
     default_conversion_price = .1
     discount_rate = .1
     interest_rate = .1
-    is_converted = False
     price_cap = 1000000
     seniority = 2
 

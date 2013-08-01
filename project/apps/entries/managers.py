@@ -13,6 +13,7 @@ class SecurityQuerySet(QuerySet):
 
 
 class CertificateQuerySet(QuerySet):
+    pass
     @property
     def liquidated(self):
         """Calculates the as-converted share totals"""
@@ -74,7 +75,10 @@ class CertificateQuerySet(QuerySet):
         certificates = self.select_related().filter(
             security__security_type=SECURITY_TYPE_OPTION).aggregate(
                 t=Sum('granted'))['t']
-        return certificates
+        if certificates:
+            return certificates
+        else:
+            return 0
 
     @property
     def exercised(self):
@@ -90,7 +94,10 @@ class CertificateQuerySet(QuerySet):
         certificates = self.select_related().filter(
             security__security_type=SECURITY_TYPE_OPTION).aggregate(
                 t=Sum('cancelled'))['t']
-        return certificates
+        if certificates:
+            return certificates
+        else:
+            return 0
 
     @property
     def outstanding_options(self):
@@ -115,9 +122,10 @@ class CertificateQuerySet(QuerySet):
 
     @property
     def available(self):
-        pool = self.select_related().filter(
-            security__security_type=SECURITY_TYPE_OPTION).aggregate(
-                t=Sum('security__addition__authorized'))['t']
+        security = get_model('entries', 'Security')
+        pool = security.objects.select_related().filter(
+            security_type=SECURITY_TYPE_OPTION).aggregate(
+                t=Sum('addition__authorized'))['t']
         return pool - self.granted + self.cancelled
 
 

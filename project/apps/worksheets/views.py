@@ -279,6 +279,7 @@ def financing(request, new_money, pre_valuation, pool_rata):
     total_post_rata = new_investor_rata
 
     posts.append({
+        'security': 'New Issue',
         'name': 'New Investor',
         'pre_shares': '',
         'pre_cash': '',
@@ -302,8 +303,6 @@ def financing(request, new_money, pre_valuation, pool_rata):
             SECURITY_TYPE_COMMON,
             SECURITY_TYPE_CONVERTIBLE,
             SECURITY_TYPE_PREFERRED]).order_by('security__security_type', 'shareholder')
-
-    posts = []
 
     for c in investor_certificates:
         pre_shares = c.outstanding_shares
