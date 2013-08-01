@@ -1,28 +1,34 @@
 {% extends 'base.html' %}
+
 {% load render_table from django_tables2 %}
+
 {% load captabletags %}
 {% load humanize %}
 
-
 {% block title %}
   <title>
-    Liquidation Worksheet
+    Financing Worksheet
   </title>
 {% endblock title %}
 
-{% block liquidation-active %}
+{% block financing-active %}
   active
 {% endblock %}
 
 {% block content %}
   <div class='container'>
+    {% if proforma %}
+      <p>
+      Price:  {{proforma.price|price}},
+      New Shares: {{proforma.new_shares|shares}},
+      New Options: {{proforma.new_options|shares}}
+      </p>
+    {% endif %}
+
     {% if table %}
       {% render_table table %}
     {% endif %}
+    <small>Prepared on {% now "r" %}</small>
   </div><!--/container-->
-
 {% endblock content %}
 
-{% block footer %}
-  Prepared on {% now "r" %}
-{% endblock footer %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  <title>
+    Financing Description
+  </title>
+{% endblock title %}
+
+
+{% block content %}
+  <div class='container'>
+    <h1>Financing Description</h1>
+    <p>To create a proforma financing worksheet, simply append three variables
+      to the end of the url separated by commas.  Order is significant.
+      The application will determine the price per share, new share quantities, option pool increase, and calculate the diluted stakes of all shareholders.
+      The appended variables are:</p>
+    <dl class='dl-horizontal'>
+      <dt>Total Raise</dt>
+      <dd>The amount of money, in dollars, you are raising.</dd>
+
+      <dt>Prevaluation</dt>
+      <dd>the prevaluation, in dollars, of the round.</dd>
+
+      <dt>Desired Option Pool</dt>
+      <dd>The total amount, in basis points, of the fully diluted option pool available after the financing is complete.  All options will be calculated "in the pre".  If you do not wish to expand the option pool then simply append a 0.</dd>
+    </dl>
+    <p>Here is an example:</p>
+    <p><a href="{% url 'financing_worksheet' 10000000 40000000 20 %}">Raise 10 million on 40 premoney valuation increasing the available option pool to 20% fully diulted.</a>  </div><!--/container-->
+{% endblock content %}

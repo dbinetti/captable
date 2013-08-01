@@ -95,7 +95,15 @@ def summary(request):
     return render(
         request, 'summary.html', {'securities': securities})
 
-def financing(request, new_money, pre_valuation, pool_rata):
+def financing_description(request):
+    return render(request, 'financing_description.html')
+
+
+def liquidation_description(request):
+    return render(request, 'liquidation_description.html')
+
+
+def financing_worksheet(request, new_money, pre_valuation, pool_rata):
     """Renders the financing table"""
 
     new_money = float(new_money)
@@ -281,16 +289,17 @@ def financing(request, new_money, pre_valuation, pool_rata):
         'price': price,
         'new_options': (available_post_shares - available_pre_shares),
         'new_shares': new_investor_shares}
-    return render(request, 'financing.html', {'table': table, 'proforma': proforma})
+    return render(request, 'financing_worksheet.html', {'table': table, 'proforma': proforma, 'posts': posts})
 
 
 # @login_required
-def liquidation(request, purchase_price):
+def liquidation_worksheet(request, purchase_price):
     """Renders the liquidation analysis."""
     purchase_cash = float(purchase_price)
     round_price = share_price(purchase_cash)
+    order_by = request.GET.get('order_by', 'shareholder__investor')
 
-    certificates = Certificate.objects.select_related().order_by('shareholder__investor')
+    certificates = Certificate.objects.select_related().order_by(order_by)
 
     liquidation = []
 
@@ -315,4 +324,4 @@ def liquidation(request, purchase_price):
     table = LiquidationTable(liquidation)
     RequestConfig(request, paginate={"per_page": 100}).configure(table)
     return render(
-            request, 'liquidation.html', {'table': table})
+            request, 'liquidation_worksheet.html', {'table': table, 'liquidation': liquidation})

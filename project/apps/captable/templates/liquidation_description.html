@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  <title>
+    Financing Description
+  </title>
+{% endblock title %}
+
+{% block content %}
+  <div class='container'>
+    <h1>Liquidation description</h1>
+    <p>To create a proforma liquidation worksheet, simply append the
+      prospective purchase price, in dollars, to the end of the url.
+      The application will calculate the proceeds per certificate
+      according to the vested stake.  It will also calculate preferences,
+      conversion ratios, and convertible instruments accordingly.</p>
+    <p>Here is an example:</p>
+    <p><a href="{% url 'liquidation_worksheet' 10000000%}">Sell for ten million.</a>
+  </div><!--/container-->
+{% endblock content %}
