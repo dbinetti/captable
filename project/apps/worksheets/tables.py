@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django_tables2.utils import A
 
-# from templatetags.captabletags import percentage, shares, currency, price
+from templatetags.captabletags import percentage, shares, currency, price
 
 from apps.entries.models import (
     Shareholder,
@@ -43,7 +43,10 @@ class PriceColumn(tables.Column):
 
 
 class LiquidationTable(tables.Table):
-    name = tables.LinkColumn('investor', args=[A('investor_slug')])
+    investor = tables.LinkColumn('investor_detail', args=[A('investor_slug')])
+    shareholder = tables.LinkColumn('shareholder_detail', args=[A('shareholder_slug')])
+    certificate = tables.LinkColumn('certificate_detail', args=[A('certificate_slug')])
+    vested = SharesColumn()
     liquidated = SharesColumn()
     proceeds = CurrencyColumn()
     proceeds_rata = RataColumn()
@@ -53,6 +56,7 @@ class LiquidationTable(tables.Table):
 
 
 class FinancingTable(tables.Table):
+    security = tables.Column()
     name = tables.Column()
     #pre
     pre_shares = SharesColumn()

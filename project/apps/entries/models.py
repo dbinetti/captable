@@ -17,6 +17,10 @@ from .managers import (
     CertificateQuerySet,
 )
 
+from apps.worksheets.managers import (
+    share_price,
+    proforma
+)
 
 class Investor(models.Model):
     """Investor represents the entity making the decision to invest.
@@ -130,7 +134,12 @@ class Security(models.Model):
         liquidation preference, which ensures that the preferred stock is
         paid before common stock in a company sale.  This variable represents
         the factor of initial principal to be returned before common is paid.
-        1 X is typical, so enter 1.0 here.""")
+        1 X is typical, so enter 1.0 here.  NOTE: While convertibles do not
+        have a direct liquidation preference, they will adopt the preference of
+        the security into which they convert.  Therefore, be sure to add that
+        preference here for convertibles as well.  If you can not determine
+        what that preference will be in a default liquidation because it is
+        not codified, then get that squared away with your investors immediately.""")
     is_participating = models.BooleanField(help_text="""
         If true, the peferred security participates along with common stock
         in addition to the liqudation preference.""")
@@ -425,28 +434,28 @@ class Certificate(models.Model):
                 SECURITY_TYPE_PREFERRED]:
             return self.shares - self.returned
         else:
-            return None
+            return 0
 
     @property
     def outstanding_warrants(self):
         if self.security.security_type in [SECURITY_TYPE_WARRANT]:
             return self.granted - self.cancelled - self.exercised
         else:
-            return None
+            return 0
 
     @property
     def outstanding_options(self):
         if self.security.security_type in [SECURITY_TYPE_OPTION]:
             return self.granted - self.cancelled - self.exercised
         else:
-            return None
+            return 0
 
     @property
     def outstanding_debt(self):
         if self.security.security_type in [SECURITY_TYPE_CONVERTIBLE]:
             return self.accrued - self.forgiven
         else:
-            return None
+            return 0
 
     @property
     def paid(self):
@@ -506,12 +515,14 @@ class Certificate(models.Model):
         else:
             return self.vested
 
-    @property
-    def discounted_price(self):
-        if self.cash and self.shares:
+    def discounted_price(self, pre_valuation=None, price=None):
+        if self.security.security_type in [SECURITY_TYPE_PREFERRED,
+            SECURITY_TYPE_COMMON] and self.cash and self.shares:
             return self.cash / self.shares
+        elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE and self.outstanding_debt:
+            return self.outstanding_debt / self.exchanged(pre_valuation, price)
         else:
-            return None
+            return 0
 
     @property
     def preference(self):
@@ -539,7 +550,7 @@ class Certificate(models.Model):
             try:
                 # If the stock converts it will share the same preference
                 # as its parent security.
-                return self.outstanding_debt * self.security.conversion_security.liquidation_preference
+                return self.outstanding_debt * self.liquidation_preference
                 # But if there is no parent then it reverts to the debt itself
                 # This basically means that the preference is calling
                 # the loan itself due and payable (with interest.)
@@ -583,7 +594,7 @@ class Certificate(models.Model):
         (or default conversion) of preferred stock.
         """
         if self.security.security_type != SECURITY_TYPE_CONVERTIBLE:
-            return None
+            return 0
         else:
             # Next we choose between the two conversion approaches
 
@@ -594,7 +605,7 @@ class Certificate(models.Model):
             # Choice B is the value of the original loan in
             # equivalent dollars per the capped value in relation
             # to the pre-valuation
-            pre_valuation = self.security.conversion_security.pre
+            pre_valuation = self.security.pre
             capped = self.outstanding_debt * (pre_valuation/self.security.price_cap)
 
             # Then, simply pick whichever approach is best and return that.
@@ -630,7 +641,7 @@ class Certificate(models.Model):
         """
         #  Don't convert what can't be converted
         if self.security.security_type != SECURITY_TYPE_CONVERTIBLE:
-            return None
+            return 0
         elif pre_valuation:
             # Get the discounted value according to that method,
             # and divide by the price to calculate the number of shares.
@@ -670,7 +681,7 @@ class Certificate(models.Model):
             # And apply it to the new offering.
             return current_rata * new_shares
         else:
-            return None
+            return 0
 
     def proceeds(self, purchase_price):
         """Calculate proceeds from transaction at given purchase price.
@@ -679,7 +690,7 @@ class Certificate(models.Model):
         price.
         """
         if self.liquidated:  # Return the proceeds: vested shares times price.
-            return self.liquidated * self.objects.price(purchase_price)[self.security.seniority]
+            return self.liquidated * share_price(purchase_price)[self.security.seniority]
         else:
             return 0
 
