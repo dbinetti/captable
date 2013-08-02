@@ -19,7 +19,7 @@ $(document).ready(function ($) {
 
         var children = getChildren($(this));
         $.each(children, function() {
-            $(this).toggle();
+            $(this).fadeToggle();
         })
     });
 
