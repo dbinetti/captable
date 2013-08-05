@@ -15,10 +15,10 @@
     <h3>Summary Capitalization</h3>
       <thead>
         <tr>
-          <th>Type</th>
+          <th class='hidden-sm'>Type</th>
           <th><span class='inlinedef' rel='popover' title='Series Name' data-content='This is the name to which the class of security is generally referred.'>Series Name</span></th>
-          <th class='text-right'><span class='inlinedef' rel='popover' title='Description' data-content='Authorized means the number of shares that the board has approved for distribution.'>Conversion Ratio</span></th>
-          <th class='text-right'><span class='inlinedef' rel='popover' title='Description'
+          <th class='text-right visible-lg'><span class='inlinedef' rel='popover' title='Description' data-content='Authorized means the number of shares that the board has approved for distribution.'>Conversion Ratio</span></th>
+          <th class='text-right visible-lg'><span class='inlinedef' rel='popover' title='Description'
           data-content='Authorized means the number of shares that the board has approved for distribution.
             The number of authorized shares of common and preferred stock does not really matter; it is there
             simply as a legal reference.  However, it matters a great deal for the option pool, since these
@@ -30,13 +30,13 @@
             matters for equity (as opposed to the "authorized" number, which matters more for options.'>Outstanding</span></th>
           <th class='text-right'><span class='inlinedef' rel='popover' title='Description'
             data-content='This is simply the percentage of the fully diluted condition.'>Rata Outstanding</span></th>
-          <th class='text-right'><span class='inlinedef' rel='popover' title='Description'
+          <th class='text-right visible-lg'><span class='inlinedef' rel='popover' title='Description'
             data-content='This represents the absolute largest possible number of shares that could
             be in play under a liquidation event.  For instance, if preferred stock has a conversion ratio
             that ratio would be applied here.  The same for convertible debt, which would convert into the
             relevant equity class here.  The basic idea is to create the "fully diluted" condition, so that
             investors can see how far their position could be diluted under that scenario.'>Converted</span></th>
-          <th class='text-right'><span class='inlinedef' rel='popover' title='Description'
+          <th class='text-right visible-lg'><span class='inlinedef' rel='popover' title='Description'
             data-content='This represents the current ownership percentages based on all granted stock
             and rights on a fully-vested basis.'>Rata Converted</span></th>
           <th class='text-right'><span class='inlinedef' rel='popover' title='Description'
@@ -49,36 +49,42 @@
       <tbody>
       {% regroup securities by get_security_type_display as security_list_by_type %}
       {% for security_by_type in security_list_by_type %}
-        <tr class='parent'>
-          <th colspan='4'>{{security_by_type.grouper}}</th>
+        <tr class='parent hidden-sm'>
+          <th class='hidden-sm'>{{security_by_type.grouper}}</th>
+          <th ></th>
+          <th class='visible-lg'></th>
+          <th class='visible-lg'></th>
           <th class='text-right'>{{security_by_type.list.0.outstanding_by_type|shares}}</th>
           <th class='text-right'>{{security_by_type.list.0.outstanding_by_type_rata|percentage}}</th>
-          <th class='text-right'>{{security_by_type.list.0.converted_by_type|shares}}</th>
-          <th class='text-right'>{{security_by_type.list.0.converted_by_type_rata|percentage}}</th>
+          <th class='text-right visible-lg'>{{security_by_type.list.0.converted_by_type|shares}}</th>
+          <th class='text-right visible-lg'>{{security_by_type.list.0.converted_by_type_rata|percentage}}</th>
           <th class='text-right'>{{security_by_type.list.0.diluted_by_type|shares}}</th>
           <th class='text-right'>{{security_by_type.list.0.diluted_by_type_rata|percentage}}</th>
         </tr>
         {% for item in security_by_type.list %}
           <tr class='child'>
-            <td></td>
+            <td class='hidden-sm'></td>
             <td><a href="{% url 'security_detail' item.slug %}">{{item.name}}</a></td>
-            <td class='text-right'>{{item.conversion_ratio|default_if_none:""|floatformat:1}}</td>
-            <td class='text-right'>{{item.authorized|default_if_none:""|shares}}</td>
+            <td class='text-right visible-lg'>{{item.conversion_ratio|default_if_none:""|floatformat:1}}</td>
+            <td class='text-right visible-lg'>{{item.authorized|default_if_none:""|shares}}</td>
             <td class='text-right'>{{item.outstanding|default_if_none:""|shares}}</td>
             <td class='text-right'>{{item.outstanding_rata|default_if_none:""|percentage}}</td>
-            <td class='text-right'>{{item.converted|default_if_none:""|shares}}</td>
-            <td class='text-right'>{{item.converted_rata|default_if_none:""|percentage}}</td>
+            <td class='text-right visible-lg'>{{item.converted|default_if_none:""|shares}}</td>
+            <td class='text-right visible-lg'>{{item.converted_rata|default_if_none:""|percentage}}</td>
             <td class='text-right'>{{item.diluted|default_if_none:""|shares}}</td>
             <td class='text-right'>{{item.diluted_rata|default_if_none:""|percentage}}</td>
           </tr>
         {% endfor item %}
       {% endfor security_list_by_type %}
         <tr>
-          <th colspan='4'>Totals</th>
+          <th class='hidden-sm'>Totals</th>
+          <th></th>
+          <th class='visible-lg'></th>
+          <th class='visible-lg'></th>
           <th class='text-right'>{{securities.outstanding|floatformat:0|intcomma}}</th>
           <th class='text-right'> {{securities.diluted_rata|percentage}}</th>
-          <th class='text-right'>{{securities.converted|floatformat:0|intcomma}}</th>
-          <th class='text-right'> {{securities.diluted_rata|percentage}}</th>
+          <th class='text-right visible-lg'>{{securities.converted|floatformat:0|intcomma}}</th>
+          <th class='text-right visible-lg'> {{securities.diluted_rata|percentage}}</th>
           <th class='text-right'>{{securities.diluted|floatformat:0|intcomma}}</th>
           <th class='text-right'> {{securities.diluted_rata|percentage}}</th>
         </tr>

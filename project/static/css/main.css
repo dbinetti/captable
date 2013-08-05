@@ -1,4 +1,11 @@
 ﻿
+
+/*Padding support for fixed navbar*/
+body {
+    padding-top: 70px;
+}
+
+/*Pagination support for django-tables2*/
 .table-container ul.pagination {
     overflow: auto;
     margin: 0;
@@ -26,13 +33,13 @@
 
 
 /*Adds popover support to glyphicons*/
-
 [rel="popover"] {
   cursor: pointer;
   display:inline-block; /* chrome-fix */
 }
 
-th .inlinedef {
+/*inline explanation for terms*/
+.inlinedef {
     border-bottom: 1px dotted #ba0000;
     cursor: help;
     display: inline;
