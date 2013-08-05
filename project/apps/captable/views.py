@@ -7,6 +7,10 @@ from django.shortcuts import (
 
 from django.contrib.auth.decorators import login_required
 
+from django.db.models import (
+    Sum,
+)
+
 from django_tables2 import RequestConfig
 
 from .tables import (
@@ -91,7 +95,7 @@ def certificate_detail(request, certificate):
 
 def summary(request):
     """Renders the summary cap table."""
-    securities = Security.objects.order_by('security_type', 'date')
+    securities = Security.objects.select_related().order_by('security_type', 'date')
     return render(
         request, 'summary.html', {'securities': securities})
 
@@ -112,6 +116,7 @@ def financing_worksheet(request, new_money, pre_valuation, pool_rata):
 
     # get the objects needed for the page
     certificates = Certificate.objects.select_related()
+    securities = Security.objects.select_related()
 
     # get the proforma
     proforma = proforma2(new_money, pre_valuation, pool_rata)
@@ -251,7 +256,8 @@ def financing_worksheet(request, new_money, pre_valuation, pool_rata):
     })
 
     # Create and append the available option list
-    available_pre_shares = certificates.available
+    available_pre_shares = securities.filter(
+        security_type=SECURITY_TYPE_OPTION).available
     available_pre_rata = available_pre_shares / total_pre_shares
     available_post_shares = available_pre_shares + new_pool_shares
     available_post_rata = available_post_shares / total_post_shares
@@ -299,7 +305,7 @@ def liquidation_worksheet(request, purchase_price):
     round_price = share_price(purchase_cash)
     order_by = request.GET.get('order_by', 'shareholder__investor')
 
-    certificates = Certificate.objects.select_related().order_by(order_by)
+    certificates = Certificate.objects.order_by(order_by)
 
     liquidation = []
 
@@ -310,6 +316,9 @@ def liquidation_worksheet(request, purchase_price):
         liquidation.append({
             'investor': certificate.shareholder.investor.name,
             'investor_slug': certificate.shareholder.investor.slug,
+            'investor_liquidated': certificate.shareholder.investor.liquidated,
+            'investor_proceeds': certificate.shareholder.investor.proceeds(purchase_cash),
+            'investor_rata': certificate.shareholder.investor.proceeds_rata(purchase_cash),
             'shareholder': certificate.shareholder.name,
             'shareholder_slug': certificate.shareholder.slug,
             'certificate': certificate.name,
@@ -324,4 +333,4 @@ def liquidation_worksheet(request, purchase_price):
     table = LiquidationTable(liquidation)
     RequestConfig(request, paginate={"per_page": 100}).configure(table)
     return render(
-            request, 'liquidation_worksheet.html', {'table': table, 'liquidation': liquidation})
+            request, 'liquidation_worksheet.html', {'liquidation': liquidation})

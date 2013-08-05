@@ -13,12 +13,37 @@ from .constants import *
 
 
 class SecurityQuerySet(QuerySet):
+    @property
     def authorized(self):
-        return self.aggregate(t=Sum('addition__authorized'))['t']
+        securities = self.select_related()
+        return sum(filter(
+            None, [s.authorized for s in securities]))
 
+    @property
+    def outstanding(self):
+        securities = self.select_related()
+        return sum(filter(
+            None, [s.outstanding for s in securities]))
+
+    @property
+    def converted(self):
+        securities = self.select_related()
+        return sum(filter(
+            None, [s.converted for s in securities]))
+
+    @property
+    def diluted(self):
+        securities = self.select_related()
+        return sum(filter(
+            None, [s.diluted for s in securities]))
+
+    @property
+    def available(self):
+        securities = self.select_related()
+        return sum(filter(
+            None, [s.available for s in securities]))
 
 class CertificateQuerySet(QuerySet):
-    pass
     @property
     def liquidated(self):
         """Calculates the as-converted share totals"""
@@ -45,10 +70,22 @@ class CertificateQuerySet(QuerySet):
             None, [t.outstanding_debt for t in certificates]))
 
     @property
+    def outstanding(self):
+        certificates = self.select_related()
+        return sum(filter(
+            None, [t.outstanding for t in certificates]))
+
+    @property
     def converted(self):
         certificates = self.select_related()
         return sum(filter(
             None, [t.converted for t in certificates]))
+
+    @property
+    def diluted(self):
+        certificates = self.select_related()
+        return sum(filter(
+            None, [t.diluted for t in certificates]))
 
     def discounted(self, pre_valuation=None):
         certificates = self.select_related()
@@ -126,15 +163,6 @@ class CertificateQuerySet(QuerySet):
             return 0
 
     @property
-    def available(self):
-        security = get_model('captable', 'Security')
-        pool = security.objects.select_related().filter(
-            security_type=SECURITY_TYPE_OPTION).aggregate(
-                t=Sum('addition__authorized'))['t']
-        return pool - self.granted + self.cancelled
-
-
-    @property
     def vested(self):
         certificates = self.select_related()
         return sum(filter(
@@ -177,7 +205,7 @@ def share_price(purchase_price):
     x = security.objects.select_related().aggregate(
             t=Max('seniority'))['t']
 
-    # We are now going to loop through all transactions, grouped
+    # We are now going to loop through all certificates, grouped
     # and ordered by security
     while x > 0:
 
@@ -186,17 +214,17 @@ def share_price(purchase_price):
         # all of the conditional logic.
         residual_price = residual_cash / residual_shares
 
-        # Now filter for all the transactions at this level of seniority.
-        tranch_transactions = certificates.filter(security__seniority=x)
+        # Now filter for all the certificates at this level of seniority.
+        tranch_certificates = certificates.filter(security__seniority=x)
 
         # And set the number of shares and preference accordingly.
-        tranch_shares = tranch_transactions.liquidated
-        tranch_preference = tranch_transactions.preference
+        tranch_shares = tranch_certificates.liquidated
+        tranch_preference = tranch_certificates.preference
 
         # We also need to check for participation, and set those
         # variables for the conditional logic.
         is_participating = False
-        for t in tranch_transactions:
+        for t in tranch_certificates:
             if t.security.is_participating:
                 is_participating = True
                 participation_cap = t.security.participation_cap
@@ -302,7 +330,9 @@ def proforma(new_money, pre_valuation, pool_rata):
 
     # First, get the certificates
     certificate = get_model('captable', 'Certificate')
+    security = get_model('captable', 'Security')
     certificates = certificate.objects.select_related()
+    securities = security.objects.select_related()
 
     # The post valuation is simply the prevaluation plus the new cash.
     post_valuation = pre_valuation + new_money
@@ -318,7 +348,7 @@ def proforma(new_money, pre_valuation, pool_rata):
 
     # Add the available options for use in calculations and if
     # there is no option pool set to zero.
-    available = certificates.available
+    available = securities.filter(security_type=SECURITY_TYPE_OPTION).available
 
     # Calculate the existing rata of granted shares; the pool must
     # be expanded by a concordimant amount to reach the desired

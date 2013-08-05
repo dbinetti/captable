@@ -28,7 +28,6 @@
           </th>
           <th><a href="{% url 'shareholder_list' %}">Shareholder</a></th>
           <th><a href="{% url 'certificate_list' %}">Certificate</a></th>
-          <th>Vested</th>
           <th>Liquidated</th>
           <th>Proceeds</th>
           <th>Rata</th>
@@ -41,16 +40,16 @@
         {% for investor in liquidation_list_by_investor %}
 
           <tr class='parent'>
-            <th colspan='6'>
-                  {{investor.grouper}}
-            </th>
-            <th>$999.00</th>
+            <td colspan='3'><a href="{% url 'investor_detail' investor.list.0.investor_slug %}">{{investor.grouper}}</a></td>
+            <td class='text-right'>{{investor.list.0.investor_liquidated|shares}}</td>
+            <td class='text-right'>{{investor.list.0.investor_proceeds|currency}}</td>
+            <td></td>
           </tr>
 
 
 
           {% for row in investor.list %}
-            <tr class='child' style='display: none; '>
+            <tr class='child warning' style='display: none; '>
               <td >
 
               </td>
@@ -61,10 +60,9 @@
               <td>
                 <a href="{% url 'certificate_detail' row.certificate_slug %}">{{row.certificate}}</a>
               </td>
-              <td>{{row.vested|shares}}</td>
-              <td>{{row.liquidated|currency}}</td>
-              <td>{{row.proceeds|currency}}</td>
-              <td>{{row.proceeds_rata|percentage}}</td>
+              <td class='text-right'>{{row.liquidated|shares}}</td>
+              <td class='text-right'>{{row.proceeds|currency}}</td>
+              <td class='text-right'>{{row.proceeds_rata|percentage}}</td>
 
             </tr>
           {% endfor %}
@@ -74,7 +72,6 @@
       <tfoot>
         <tr>
           <td colspan=3>Totals</td>
-          <td>{{total.vested}}</td>
           <td>{{total.liquidated}}</td>
           <td>{{total.proceeds}}</td>
           <td>{{total.rata}}</td>
@@ -84,6 +81,6 @@
     <small>Prepared on {% now "r" %}</small>
     <br>
   </div><!--/container-->
-
+{{liquidation}}
 
 {% endblock content %}

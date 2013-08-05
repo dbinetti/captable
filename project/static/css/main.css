@@ -31,3 +31,9 @@
   cursor: pointer;
   display:inline-block; /* chrome-fix */
 }
+
+th .inlinedef {
+    border-bottom: 1px dotted #ba0000;
+    cursor: help;
+    display: inline;
+}

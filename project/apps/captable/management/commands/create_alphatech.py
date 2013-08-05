@@ -25,7 +25,7 @@ class Command(BaseCommand):
 
         self.preferred = PreferredSecurity(
             addition__authorized=5000000,
-            name="Preferred Stock",
+            name="Series A",
             price_per_share=.5
         )
 
