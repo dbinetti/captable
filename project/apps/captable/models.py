@@ -49,9 +49,9 @@ class Investor(models.Model):
     def __unicode__(self):
         return self.name
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.slug = slugify(unicode(self.name))
-        super(Investor, self).save()
+        super(Investor, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('investor', args=[str(self.slug)])
@@ -93,9 +93,9 @@ class Shareholder(models.Model):
     def __unicode__(self):
         return self.name
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.slug = slugify(unicode(self.name))
-        super(Investor, self).save()
+        super(Shareholder, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('shareholder', args=[str(self.slug)])
@@ -206,9 +206,9 @@ class Security(models.Model):
         return "{security}".format(
             security=self.name)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.slug = slugify(unicode(self.name))
-        super(Investor, self).save()
+        super(Security, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('security', args=[str(self.slug)])
@@ -420,9 +420,9 @@ class Certificate(models.Model):
     class Meta:
         ordering = ['name']
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.slug = slugify(unicode(self.name))
-        super(Certificate, self).save()
+        super(Certificate, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return '{certificate} - {shareholder}'.format(
