@@ -68,6 +68,24 @@ class Investor(models.Model):
         return sum(filter(None, [c.liquidated for c in certificates]))
 
     @property
+    def outstanding(self):
+        certificates = Certificate.objects.filter(
+            shareholder__investor=self)
+        return sum(filter(None, [c.outstanding for c in certificates]))
+
+    @property
+    def paid(self):
+        certificates = Certificate.objects.filter(
+            shareholder__investor=self)
+        return sum(filter(None, [c.paid for c in certificates]))
+
+    @property
+    def principal(self):
+        certificates = Certificate.objects.filter(
+            shareholder__investor=self)
+        return sum(filter(None, [c.principal for c in certificates]))
+
+    @property
     def preference(self):
         certificates = Certificate.objects.filter(
             shareholder__investor=self)
@@ -77,6 +95,17 @@ class Investor(models.Model):
         proceeds = self.proceeds(purchase_price)
         total = Certificate.objects.select_related().proceeds(purchase_price)
         return proceeds / total
+
+    def prorata(self, new_shares):
+        certificates = Certificate.objects.filter(
+            shareholder__investor=self)
+        return sum(filter(None, [c.prorata(new_shares) for c in certificates]))
+
+    def exchanged(self, pre_valuation, price):
+        certificates = Certificate.objects.filter(
+            shareholder__investor=self)
+        return sum(filter(None, [c.exchanged(pre_valuation, price) for c in certificates]))
+
 
 class Shareholder(models.Model):
     """Shareholder is the legal entity which holds the security.
@@ -356,10 +385,10 @@ class Certificate(models.Model):
         The cash paid for the transaction.  This will reflect the
         total purchase price for the shares, or the amount of debt issued.""")
     refunded = models.FloatField(default=0)
-    debt = models.FloatField(default=0, help_text="""
+    principal = models.FloatField(default=0, help_text="""
         Debt """)
     forgiven = models.FloatField(default=0, help_text="""
-        Forgiven debt.  Should equal cash in conversion.""")
+        Forgiven principal.  Should equal cash in conversion.""")
     granted = models.FloatField(default=0, help_text="""
         The total amount of the original option/warrant grant.""")
     exercised = models.FloatField(default=0)
@@ -537,12 +566,12 @@ class Certificate(models.Model):
         else:
             return 0
 
-    @property
-    def outstanding_debt(self):
-        if self.security.security_type in [SECURITY_TYPE_CONVERTIBLE]:
-            return self.accrued - self.forgiven
-        else:
-            return 0
+    # @property
+    # def outstanding_debt(self):
+    #     if self.security.security_type in [SECURITY_TYPE_CONVERTIBLE]:
+    #         return self.accrued - self.forgiven
+    #     else:
+    #         return 0
 
     @property
     def outstanding(self):
@@ -554,8 +583,8 @@ class Certificate(models.Model):
             return self.granted - self.cancelled - self.exercised
         elif self.security.security_type in [SECURITY_TYPE_OPTION]:
             return self.granted - self.cancelled - self.exercised
-        elif self.security.security_type in [SECURITY_TYPE_CONVERTIBLE]:
-            return self.accrued - self.forgiven
+        # elif self.security.security_type in [SECURITY_TYPE_CONVERTIBLE]:
+        #     return self.accrued - self.forgiven
         else:
             return 0
 
@@ -563,7 +592,16 @@ class Certificate(models.Model):
 
     @property
     def paid(self):
-        return self.cash - self.refunded
+        if self.security.security_type in [
+            SECURITY_TYPE_COMMON,
+            SECURITY_TYPE_PREFERRED,
+            SECURITY_TYPE_WARRANT]:
+            return self.cash - self.refunded
+        elif self.security.security_type in [
+            SECURITY_TYPE_CONVERTIBLE]:
+            return self.principal - self.forgiven
+        else:
+            return 0
 
     @property
     def converted(self):
@@ -707,9 +745,9 @@ class Certificate(models.Model):
             else:
                 converted_date = datetime.date.today()
             # Convertible debt interest is nearly always simple interest.
-            interest = self.debt * self.security.interest_rate * (
+            interest = self.principal * self.security.interest_rate * (
                 (converted_date - self.date).days)/365
-            return round(self.debt + interest, 2)
+            return round(self.principal + interest, 2)
 
         else:
             return None
@@ -737,14 +775,14 @@ class Certificate(models.Model):
 
             # Choice A is the the value of the original loan in
             # equivalent dollars per the discount rate.
-            discounted = self.outstanding / (1-self.security.discount_rate)
+            discounted = self.accrued / (1-self.security.discount_rate)
 
             # Choice B is the value of the original loan in
             # equivalent dollars per the capped value in relation
             # to the pre-valuation
             if not pre_valuation:
                 pre_valuation = self.security.pre
-            capped = self.outstanding * (pre_valuation/self.security.price_cap)
+            capped = self.accrued * (pre_valuation/self.security.price_cap)
 
             # Then, simply pick whichever approach is best and return that.
             return max(discounted, capped)
@@ -786,7 +824,7 @@ class Certificate(models.Model):
             return self.discounted(pre_valuation) / price
         else:
             # Use the accrued value divided by the default price.
-            return self.outstanding / self.security.default_conversion_price
+            return self.accrued / self.security.default_conversion_price
 
     def prorata(self, new_shares):
         """Return the Investor's prorata.
@@ -811,7 +849,7 @@ class Certificate(models.Model):
         if self.is_prorata:
 
             # Calculation of the rata is done on a fully-diluted basis.
-            fully_diluted = self.converted
+            fully_diluted = Security.objects.diluted
 
             # Get the current rata
             current_rata = self.outstanding / fully_diluted

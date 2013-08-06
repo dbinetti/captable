@@ -339,26 +339,29 @@ def proforma(new_money, pre_valuation, pool_rata):
 
     # First, calculate what the new investors will expect in terms of
     # ownership after the financing has occured.
-    new_rata = new_money / post_valuation
+    # This will include any prorata from existing investors.
+    new_investor_rata = new_money / post_valuation
 
     # Calculate what the convertible investors will expect per the terms
     # of their debt instrument.
     discounted = certificates.discounted(pre_valuation)
     convert_rata = discounted / post_valuation
 
-    # Add the available options for use in calculations and if
-    # there is no option pool set to zero.
+    # Add the available options for use in calculating
+    # the new option pool.  This puts the resultant option
+    # poll 'in the pre'.
     available = securities.filter(security_type=SECURITY_TYPE_OPTION).available
 
     # Calculate the existing rata of granted shares; the pool must
     # be expanded by a concordimant amount to reach the desired
-    # pool rata.
-    pre_shares = certificates.outstanding_shares + certificates.outstanding_options + certificates.warrants
+    # pool rata, and is calculated on a fully diluted
+    pre_shares = certificates.outstanding
 
     # Aggregate the rata and determine the total expansion of
     # capital from the existing number of outstanding shares
-    # and available option pool.
-    combined_rata = new_rata + convert_rata + pool_rata
+    # and available option pool.  If the pool is not being expanded
+    # then do not include the available options in the calculation.
+    combined_rata = new_investor_rata + convert_rata + pool_rata
     if pool_rata:
         expansion = (combined_rata / (1-combined_rata)) * (pre_shares + 0)
     else:
@@ -366,7 +369,7 @@ def proforma(new_money, pre_valuation, pool_rata):
 
     # Ratably distribute shares such that everyone gets
     # what one expects to get.
-    new_money_shares = (new_rata / combined_rata) * expansion
+    new_money_shares = (new_investor_rata / combined_rata) * expansion
     new_converted_shares = (convert_rata / combined_rata) * expansion
     if pool_rata:
         new_pool_shares = expansion - new_money_shares - new_converted_shares - available
@@ -387,12 +390,14 @@ def proforma(new_money, pre_valuation, pool_rata):
         'available': available,
         'pre_shares': pre_shares,
         'expansion': expansion,
-        'new_rata': new_rata,
+        'new_investor_rata': new_investor_rata,
         'combined_rata': combined_rata,
         'new_money_shares': new_money_shares,
         'new_prorata_shares': new_prorata_shares,
+        'new_prorata_cash': new_prorata_shares * new_price,
         'new_converted_shares': new_converted_shares,
         'new_investor_shares': new_investor_shares,
+        'new_investor_cash': new_investor_shares * new_price,
         'new_pool_shares': new_pool_shares,
         'price': new_price,
     }

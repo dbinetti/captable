@@ -1,33 +1,93 @@
 {% extends 'base.html' %}
-
-{% load render_table from django_tables2 %}
-
 {% load captabletags %}
 {% load humanize %}
 
 {% block title %}
   <title>
-    Financing Worksheet
+    Financing Summary
   </title>
 {% endblock title %}
 
-{% block financing-active %}
-  active
-{% endblock %}
 
 {% block content %}
   <div class='container'>
-    {% if proforma %}
-      <p>
-      Price:  {{proforma.price|price}},
-      New Shares: {{proforma.new_shares|shares}},
-      New Options: {{proforma.new_options|shares}}
-      </p>
-    {% endif %}
+    <div class='panel'>
+      <div class="panel-heading">
+        <h4 class='panel-title'>Overview</h4>
+      </div>
+      Price:  {{total.price|price}}<br>
+    </div><!--/panel-->
+      <table class="table table-bordered table-hover table-summary">
+      <h3>Summary Financing</h3>
 
-    {% if table %}
-      {% render_table table %}
-    {% endif %}
+        <thead>
+          <tr>
+            <th></th>
+            <th class='text-center' colspan=3><span class='inlinedef' rel='popover' title='Pre-Money'
+          data-content='The Pre-Money values represent the capitalization of the company immediately preceeding any financing event.'>Pre Money</span></th>
+            <th class='text-center' colspan=2><span class='inlinedef' rel='popover' title='New Money'
+          data-content='The New-Money values represent transactions related to the financing event itself.'>New Money</span></th>
+            <th class='text-center' colspan=3><span class='inlinedef' rel='popover' title='Post-Money'
+          data-content='The Post-Money values represent the capitalization of the company immediately following any financing event.'>Post Money</span</th>
+          </tr>
+          <tr>
+            <th>Name</th>
+            <th class='text-center'><span class='inlinedef' rel='popover' title='Pre-Money Shares'
+          data-content='The Pre-Money shares represent the fully diluted capitalization of the company prior to any financing.  Shares in this context also includes options and warrants, but does not include convertible debt.'>Shares</span></th>
+            <th class='text-center'><span class='inlinedef' rel='popover' title='Pre-Money Cash'
+          data-content='The Pre-Money cash represents the actual money taken in prior to the financing, including any principal related to converible debt issuances.'>Cash</span></th>
+            <th class='text-center'><span class='inlinedef' rel='popover' title='Pre-Money Rata'
+          data-content='Represents the fully-diluted pre-money rata, excluding any convertible debt.'>Rata</span></th>
+            <th class='text-center'><span class='inlinedef' rel='popover' title='New-Money Shares'
+          data-content='New money shares represent the shares sold to new investors, any prorata shares issued to existing investors, and any shares exchanged for convertible debt instruments.'>Shares</span></th>
+            <th class='text-center'><span class='inlinedef' rel='popover' title='New-Money Cash'
+          data-content='This represents the new money received for any issuances of stock, including prorata exercises.  It does not include cash from convertible debt, since that money was received prior to the financing.'>Cash</span></th>
+            <th class='text-center'><span class='inlinedef' rel='popover' title='Post-Money Shares'
+          data-content='Post money shares are the total, fully diulted captialization of the company following the financing event.'>Shares</span></th>
+            <th class='text-center'><span class='inlinedef' rel='popover' title='Post-Money Cash'
+          data-content='Represents the total cash taken in to date.'>Cash</span></th>
+            <th class='text-center'><span class='inlinedef' rel='popover' title='Post-Money Rata'
+          data-content='Rata ownership post-financing.'>Rata</span></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for investor in financing %}
+            <tr>
+              <td>
+                {% if investor.slug %}<a href="{% url 'investor_detail' investor.slug %}">{{investor.name}}</a>
+                {% else %}
+                {{investor.name}}
+                {% endif %}
+              </td>
+              <td class='text-right'>{{investor.pre_shares|shares}}</td>
+              <td class='text-right'>{{investor.pre_cash|currency}}</td>
+              <td class='text-right'>{{investor.pre_rata|percentage}}</td>
+              <td class='text-right'>{{investor.new_shares|shares}}</td>
+              <td class='text-right'>{{investor.new_cash|currency}}</td>
+              <td class='text-right'>{{investor.post_shares|shares}}</td>
+              <td class='text-right'>{{investor.post_cash|currency}}</td>
+              <td class='text-right'>{{investor.post_rata|percentage}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+
+        <tfoot>
+          <tr>
+              <th>Totals</th>
+              <th class='text-right'>{{total.pre_shares|shares}}</th>
+              <th class='text-right'>{{total.pre_cash|currency}}</th>
+              <th class='text-right'>{{total.pre_rata|percentage}}</th>
+              <th class='text-right'>{{total.new_shares|shares}}</th>
+              <th class='text-right'>{{total.new_cash|currency}}</th>
+              <th class='text-right'>{{total.post_shares|shares}}</th>
+              <th class='text-right'>{{total.post_cash|currency}}</th>
+              <th class='text-right'>{{total.post_rata|percentage}}</th>
+          </tr>
+        </tfoot>
+
+      </table>
+
     <small>Prepared on {% now "r" %}</small>
   </div><!--/container-->
 {% endblock content %}

@@ -63,7 +63,7 @@ class CertificateAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = [
         '__unicode__', 'shares', 'returned', 'cash', 'refunded',
-        'debt', 'forgiven', 'granted', 'exercised', 'cancelled']
+        'principal', 'forgiven', 'granted', 'exercised', 'cancelled']
     ordering = ['name']
     list_filter = ['security__security_type']
 

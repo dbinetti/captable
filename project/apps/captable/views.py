@@ -110,194 +110,136 @@ def liquidation_instructions(request):
 def financing_summary(request, new_money, pre_valuation, pool_rata):
     """Renders the financing table"""
 
+    # capture the parameters from the URL
     new_money = float(new_money)
     pre_valuation = float(pre_valuation)
     pool_rata = float(pool_rata)/100
 
-    # get the objects needed for the page
-    certificates = Certificate.objects.select_related()
-    securities = Security.objects.select_related()
-
-    # get the proforma
+    # calculate the proforma from those inputs
     proforma = proforma2(new_money, pre_valuation, pool_rata)
 
-    # populate the variables
+    # get all certificates
+    certificates = Certificate.objects.select_related()
+
+    # populate individual variables for ease of use
     price = proforma['price']
     new_investor_shares = proforma['new_investor_shares']
+    new_investor_cash = proforma['new_investor_cash']
     new_pool_shares = proforma['new_pool_shares']
     new_money_shares = proforma['new_money_shares']
     new_prorata_shares = proforma['new_prorata_shares']
+    new_prorata_cash = proforma['new_prorata_cash']
     new_converted_shares = proforma['new_converted_shares']
     available = proforma['available']
 
-    # set the 'globals'
-    total_pre_shares = available + certificates.converted
+    pre_shares = certificates.outstanding + available
+    pre_cash = certificates.paid
+    new_shares = new_investor_shares + new_prorata_shares + new_converted_shares + new_pool_shares
+    new_cash = new_investor_cash + new_prorata_cash
+    post_shares = pre_shares + new_shares
+    post_cash = pre_cash + new_cash
 
-    total_pre_cash = certificates.paid
+    # instantiate the context for the totals
+    total = {
+        'name': "Total",
+        'price': price,
+        'pre_shares': pre_shares,
+        'pre_cash': pre_cash,
+        'new_shares': new_shares,
+        'new_cash': new_cash,
+        'post_shares': post_shares,
+        'post_cash': post_cash,
+    }
 
-    total_prorata_cash = new_prorata_shares * price
-    total_converted_cash = certificates.outstanding_debt
+    # get the objects needed for the detail
+    certificates = Certificate.objects.select_related()
+    securities = Security.objects.select_related()
 
-    total_post_shares = sum([
-        total_pre_shares,
-        new_money_shares,
-        new_converted_shares,
-        new_pool_shares])
-
-    total_post_cash = sum(filter(
-        None, [total_pre_cash, new_money, total_converted_cash]))
 
     # Instantiate the context
-    posts = []
+    financing = []
 
     # Create the New Investor row
-    new_investor_cash = new_money - total_prorata_cash
-    new_investor_rata = new_investor_shares / total_post_shares
+    new_investor_cash = new_money - new_prorata_cash
+    new_investor_rata = new_investor_shares / total['post_shares']
 
     total_pre_rata = 0
     total_post_rata = new_investor_rata
 
-    posts.append({
-        'security': 'New Issue',
+    financing.append({
         'name': 'New Investor',
         'pre_shares': '',
         'pre_cash': '',
-        'pre_price': '',
         'pre_rata': '',
-        'prorata_shares': '',
-        'prorata_cash': '',
-        'converted_shares': '',
-        'converted_cash': '',
-        'converted_price': '',
+        'new_shares': new_investor_shares,
+        'new_cash': new_investor_cash,
         'post_shares': new_investor_shares,
         'post_cash': new_investor_cash,
-        'post_price': price,
-        'post_rata': new_investor_rata
-
+        'post_rata': new_investor_rata,
     })
 
-    # Create the investor list
-    investor_certificates = certificates.filter(
-        security__security_type__in=[
-            SECURITY_TYPE_COMMON,
-            SECURITY_TYPE_CONVERTIBLE,
-            SECURITY_TYPE_PREFERRED]).order_by('security__security_type', 'shareholder')
+    # Get the current investor objects
+    investors = Investor.objects.order_by('shareholder')
 
-    for c in investor_certificates:
-        pre_shares = c.outstanding_shares
-        pre_cash = c.paid
-        pre_price = c.discounted_price
-        pre_rata = pre_shares / total_pre_shares
-        prorata_shares = c.prorata(new_money_shares)
+    for i in investors:
+        name = i.name
+        slug = i.slug
+        pre_shares = i.outstanding
+        pre_cash = i.paid
+        pre_rata = pre_shares / total['pre_shares']
+
+        prorata_shares = i.prorata(new_money_shares)
         prorata_cash = prorata_shares * price
-        converted_shares = c.exchanged(pre_valuation, price)
-        converted_cash = c.outstanding_debt
-        converted_price = c.discounted_price
-        post_shares = sum(filter(None, [pre_shares, prorata_shares, converted_shares]))
-        post_cash = sum(filter(None, [pre_cash, prorata_cash, converted_cash]))
-        post_price = 0 #post_cash / post_shares if post_shares else 0
-        post_rata = post_shares / total_post_shares
+        converted_shares = i.exchanged(pre_valuation, price)
+        converted_cash = i.principal
+
+        new_shares = prorata_shares + converted_shares
+        new_cash = prorata_cash
+
+        post_shares = pre_shares + new_shares
+        post_cash = pre_cash + new_cash
+        post_rata = post_shares / total['post_shares']
 
         total_pre_rata += pre_rata
         total_post_rata += post_rata
-        if not pre_shares and not converted_shares:
-            continue
-        posts.append({
-            'security': c.security,
-            'name': c.shareholder.investor,
+
+        # skip non-participating investors
+        # if not pre_shares and not new_shares:
+        #     continue
+        financing.append({
+            'name': name,
+            'slug': slug,
             'pre_shares': pre_shares,
             'pre_cash': pre_cash,
-            'pre_price': pre_price,
             'pre_rata': pre_rata,
-            'prorata_shares': prorata_shares,
-            'prorata_cash': prorata_cash,
-            'converted_shares': converted_shares,
-            'converted_cash': converted_cash,
-            'converted_price': converted_price,
+            'new_shares': new_shares,
+            'new_cash': new_cash,
             'post_shares': post_shares,
             'post_cash': post_cash,
-            'post_price': post_price,
             'post_rata': post_rata,
-        })
-
-    # Create and append the warrants list
-    warrants_pre_shares = certificates.warrants
-    if warrants_pre_shares:
-        warrants_pre_rata = warrants_pre_shares / total_pre_shares
-        warrants_post_shares = warrants_pre_shares
-        warrants_post_rata = warrants_pre_shares / total_post_shares
-
-        total_pre_rata += warrants_pre_rata
-        total_post_rata += warrants_post_rata
-
-        posts.append({
-            'name': 'Warrant Coverage',
-            'pre_shares': warrants_pre_shares,
-            'pre_rata': warrants_pre_rata,
-            'post_shares': warrants_post_shares,
-            'post_rata': warrants_post_rata
-
-        })
-    # Create and append the options granted list
-    granted_pre_shares = certificates.outstanding_options
-    if granted_pre_shares:
-        granted_pre_rata = granted_pre_shares / total_pre_shares
-        granted_post_shares = granted_pre_shares
-        granted_post_rata = granted_pre_shares / total_post_shares
-
-        total_pre_rata += granted_pre_rata
-        total_post_rata += granted_post_rata
-
-        posts.append({
-            'name': 'Options Outstanding',
-            'pre_shares': granted_pre_shares,
-            'pre_rata': granted_pre_rata,
-            'post_shares': granted_post_shares,
-            'post_rata': granted_post_rata
-
         })
 
     # Create and append the available option list
     available_pre_shares = securities.filter(
         security_type=SECURITY_TYPE_OPTION).available
-    available_pre_rata = available_pre_shares / total_pre_shares
+    available_pre_rata = available_pre_shares / total['pre_shares']
     available_post_shares = available_pre_shares + new_pool_shares
-    available_post_rata = available_post_shares / total_post_shares
+    available_post_rata = available_post_shares / total['post_shares']
 
     total_pre_rata += available_pre_rata
     total_post_rata += available_post_rata
 
-    posts.append({
+    financing.append({
         'name': 'Options Available',
         'pre_shares': available_pre_shares,
         'pre_rata': available_pre_rata,
+        'new_shares': available_post_shares - available_pre_shares,
+        'new_cash': 0,
         'post_shares': available_post_shares,
         'post_rata': available_post_rata
     })
 
-    # Finally, append the totals
-    posts.append({
-        'name': "Total",
-        'pre_shares': total_pre_shares,
-        'pre_cash': total_pre_cash,
-        'pre_rata': total_pre_rata,
-        'prorata_shares': new_prorata_shares,
-        'prorata_cash': total_prorata_cash,
-        'converted_shares': new_converted_shares,
-        'converted_cash': total_converted_cash,
-        'post_shares': total_post_shares,
-        'post_cash': total_post_cash,
-        'post_rata': total_post_rata
-    })
-
-    table = FinancingTable(posts)
-    RequestConfig(request, paginate={"per_page": 100}).configure(table)
-
-    proforma = {
-        'price': price,
-        'new_options': (available_post_shares - available_pre_shares),
-        'new_shares': new_investor_shares}
-    return render(request, 'financing_summary.html', {'table': table, 'proforma': proforma, 'posts': posts})
+    return render(request, 'financing_summary.html', {'financing': financing, 'total': total})
 
 
 # @login_required
@@ -306,9 +248,6 @@ def liquidation_summary(request, purchase_price):
     purchase_cash = float(purchase_price)
     # round_price = share_price(purchase_cash)
     # order_by = request.GET.get('order_by', 'shareholder__investor')
-
-
-    liquidation = []
 
     investors = Investor.objects.select_related().order_by('name')
     certificates = Certificate.objects.select_related()
@@ -319,6 +258,7 @@ def liquidation_summary(request, purchase_price):
         'liquidated': certificates.liquidated,
     }
 
+    liquidation = []
     for investor in investors:
         liquidation.append({
             'name': investor.name,
@@ -327,9 +267,7 @@ def liquidation_summary(request, purchase_price):
             'liquidated': investor.liquidated,
             'proceeds': investor.proceeds(purchase_cash),
             'proceeds_rata': investor.proceeds(purchase_cash) / total['proceeds']
-            })
-
-
+        })
 
     return render(
             request, 'liquidation_summary.html', {'liquidation': liquidation, 'total': total})

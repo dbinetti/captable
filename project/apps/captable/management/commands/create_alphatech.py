@@ -23,13 +23,13 @@ class Command(BaseCommand):
             name="Common Stock"
         )
 
-        self.preferredA = PreferredSecurity(
+        self.seriesA = PreferredSecurity(
             addition__authorized=5000000,
             name="Series A",
             price_per_share=.5
         )
 
-        self.preferredB = PreferredSecurity(
+        self.seriesB = PreferredSecurity(
             addition__authorized=5000000,
             name="Series B",
             price_per_share=1
@@ -40,76 +40,94 @@ class Command(BaseCommand):
             name="Option Plan"
         )
 
-        self.investorA = InvestorFactory(
+        self.investor_common1 = InvestorFactory(
             name="Joe Founder"
         )
 
-        self.investorB = InvestorFactory(
+        self.investor_common2 = InvestorFactory(
             name="Jane Founder"
         )
 
-        self.investorC = InvestorFactory(
+        self.investor_seriesA1 = InvestorFactory(
             name="Venture Partners"
         )
 
-        self.investorD = InvestorFactory(
+        self.investor_seriesB1 = InvestorFactory(
             name="Second Round Partners"
         )
 
-        self.shareholderA = ShareholderFactory(
+        self.investor_option1 = InvestorFactory(
+            name="Bill Furst"
+        )
+
+        self.shareholder_common1 = ShareholderFactory(
             name="Joe Founder",
-            investor=self.investorA
+            investor=self.investor_common1
         )
 
-        self.shareholderB = ShareholderFactory(
+        self.shareholder_common2 = ShareholderFactory(
             name="Jane Founder",
-            investor=self.investorB
+            investor=self.investor_common2
         )
 
-        self.shareholderC = ShareholderFactory(
+        self.shareholder_seriesA1 = ShareholderFactory(
             name="VP Fund III",
-            investor=self.investorC
+            investor=self.investor_seriesA1
         )
 
-        self.shareholderD = ShareholderFactory(
+        self.shareholder_seriesB1 = ShareholderFactory(
             name="SR Fund IV",
-            investor=self.investorD
+            investor=self.investor_seriesB1
         )
 
-        self.certificateA = CertificateFactory(
+        self.shareholder_option1 = ShareholderFactory(
+            name="Bill Furst Family Trust",
+            investor=self.investor_option1,
+        )
+
+        self.certificateCS01 = CertificateFactory(
             security=self.common,
-            shareholder=self.shareholderA,
+            shareholder=self.shareholder_common1,
             shares=3500000,
             cash=3500,
-            date=one_year_ago,
-            vesting_start=one_year_ago
+            date=five_years_ago,
+            vesting_start=five_years_ago
         )
 
-        self.certificateB = CertificateFactory(
+        self.certificateCS02 = CertificateFactory(
             security=self.common,
-            shareholder=self.shareholderB,
+            shareholder=self.shareholder_common2,
             shares=3500000,
             cash=3500,
-            date=one_year_ago,
-            vesting_start=one_year_ago
+            date=five_years_ago,
+            vesting_start=five_years_ago
         )
 
-        self.certificateC = CertificateFactory(
-            security=self.preferredA,
-            shareholder=self.shareholderC,
+        self.certificatePA01 = CertificateFactory(
+            security=self.seriesA,
+            shareholder=self.shareholder_seriesA1,
             shares=2000000,
             cash=1000000,
-            date=one_year_ago,
-            vesting_start=one_year_ago
+            is_prorata=True,
+            date=two_years_ago,
+            vesting_start=two_years_ago
         )
 
-        self.certificateD = CertificateFactory(
-            security=self.preferredB,
-            shareholder=self.shareholderD,
+        self.certificatePB01 = CertificateFactory(
+            security=self.seriesB,
+            shareholder=self.shareholder_seriesB1,
             shares=10000000,
             cash=10000000,
             date=one_year_ago,
             vesting_start=one_year_ago
+        )
+
+        self.certificateOP01 = CertificateFactory(
+            security=self.options,
+            shareholder=self.shareholder_option1,
+            granted=100000,
+            date=two_years_ago,
+            vesting_start=two_years_ago
         )
 
         self.stdout.write("Successfully created Alpha Tech")
