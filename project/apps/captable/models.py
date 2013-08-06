@@ -67,6 +67,12 @@ class Investor(models.Model):
             shareholder__investor=self)
         return sum(filter(None, [c.liquidated for c in certificates]))
 
+    @property
+    def preference(self):
+        certificates = Certificate.objects.filter(
+            shareholder__investor=self)
+        return sum(filter(None, [c.preference for c in certificates]))
+
     def proceeds_rata(self, purchase_price):
         proceeds = self.proceeds(purchase_price)
         total = Certificate.objects.select_related().proceeds(purchase_price)
@@ -245,19 +251,8 @@ class Security(models.Model):
             security=self).outstanding
 
     @property
-    def outstanding_by_type(self):
-        return Certificate.objects.select_related().filter(
-            security__security_type=self.security_type).outstanding
-
-    @property
     def outstanding_rata(self):
         outstanding = self.outstanding
-        total = Certificate.objects.select_related().outstanding
-        return outstanding / total
-
-    @property
-    def outstanding_by_type_rata(self):
-        outstanding = self.outstanding_by_type
         total = Certificate.objects.select_related().outstanding
         return outstanding / total
 
@@ -265,11 +260,6 @@ class Security(models.Model):
     def converted(self):
         return Certificate.objects.select_related().filter(
             security=self).converted
-
-    @property
-    def converted_by_type(self):
-        return Certificate.objects.select_related().filter(
-            security__security_type=self.security_type).converted
 
     @property
     def converted_rata(self):
@@ -285,11 +275,6 @@ class Security(models.Model):
         else:
             return Certificate.objects.select_related().filter(
                 security=self).diluted
-
-    @property
-    def diluted_by_type(self):
-        return self.objects.select_related().filter(
-            security__security_type=self.security_type).diluted
 
     @property
     def diluted_rata(self):

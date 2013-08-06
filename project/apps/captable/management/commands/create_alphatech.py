@@ -23,10 +23,16 @@ class Command(BaseCommand):
             name="Common Stock"
         )
 
-        self.preferred = PreferredSecurity(
+        self.preferredA = PreferredSecurity(
             addition__authorized=5000000,
             name="Series A",
             price_per_share=.5
+        )
+
+        self.preferredB = PreferredSecurity(
+            addition__authorized=5000000,
+            name="Series B",
+            price_per_share=1
         )
 
         self.options = OptionSecurity(
@@ -46,6 +52,10 @@ class Command(BaseCommand):
             name="Venture Partners"
         )
 
+        self.investorD = InvestorFactory(
+            name="Second Round Partners"
+        )
+
         self.shareholderA = ShareholderFactory(
             name="Joe Founder",
             investor=self.investorA
@@ -59,6 +69,11 @@ class Command(BaseCommand):
         self.shareholderC = ShareholderFactory(
             name="VP Fund III",
             investor=self.investorC
+        )
+
+        self.shareholderD = ShareholderFactory(
+            name="SR Fund IV",
+            investor=self.investorD
         )
 
         self.certificateA = CertificateFactory(
@@ -80,10 +95,19 @@ class Command(BaseCommand):
         )
 
         self.certificateC = CertificateFactory(
-            security=self.preferred,
+            security=self.preferredA,
             shareholder=self.shareholderC,
             shares=2000000,
             cash=1000000,
+            date=one_year_ago,
+            vesting_start=one_year_ago
+        )
+
+        self.certificateD = CertificateFactory(
+            security=self.preferredB,
+            shareholder=self.shareholderD,
+            shares=10000000,
+            cash=10000000,
             date=one_year_ago,
             vesting_start=one_year_ago
         )

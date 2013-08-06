@@ -99,15 +99,15 @@ def summary(request):
     return render(
         request, 'summary.html', {'securities': securities})
 
-def financing_description(request):
-    return render(request, 'financing_description.html')
+def financing_instructions(request):
+    return render(request, 'financing_instructions.html')
 
 
-def liquidation_description(request):
-    return render(request, 'liquidation_description.html')
+def liquidation_instructions(request):
+    return render(request, 'liquidation_instructions.html')
 
 
-def financing_worksheet(request, new_money, pre_valuation, pool_rata):
+def financing_summary(request, new_money, pre_valuation, pool_rata):
     """Renders the financing table"""
 
     new_money = float(new_money)
@@ -222,38 +222,40 @@ def financing_worksheet(request, new_money, pre_valuation, pool_rata):
 
     # Create and append the warrants list
     warrants_pre_shares = certificates.warrants
-    warrants_pre_rata = warrants_pre_shares / total_pre_shares
-    warrants_post_shares = warrants_pre_shares
-    warrants_post_rata = warrants_pre_shares / total_post_shares
+    if warrants_pre_shares:
+        warrants_pre_rata = warrants_pre_shares / total_pre_shares
+        warrants_post_shares = warrants_pre_shares
+        warrants_post_rata = warrants_pre_shares / total_post_shares
 
-    total_pre_rata += warrants_pre_rata
-    total_post_rata += warrants_post_rata
+        total_pre_rata += warrants_pre_rata
+        total_post_rata += warrants_post_rata
 
-    posts.append({
-        'name': 'Warrant Coverage',
-        'pre_shares': warrants_pre_shares,
-        'pre_rata': warrants_pre_rata,
-        'post_shares': warrants_post_shares,
-        'post_rata': warrants_post_rata
+        posts.append({
+            'name': 'Warrant Coverage',
+            'pre_shares': warrants_pre_shares,
+            'pre_rata': warrants_pre_rata,
+            'post_shares': warrants_post_shares,
+            'post_rata': warrants_post_rata
 
-    })
+        })
     # Create and append the options granted list
     granted_pre_shares = certificates.outstanding_options
-    granted_pre_rata = granted_pre_shares / total_pre_shares
-    granted_post_shares = granted_pre_shares
-    granted_post_rata = granted_pre_shares / total_post_shares
+    if granted_pre_shares:
+        granted_pre_rata = granted_pre_shares / total_pre_shares
+        granted_post_shares = granted_pre_shares
+        granted_post_rata = granted_pre_shares / total_post_shares
 
-    total_pre_rata += granted_pre_rata
-    total_post_rata += granted_post_rata
+        total_pre_rata += granted_pre_rata
+        total_post_rata += granted_post_rata
 
-    posts.append({
-        'name': 'Options Outstanding',
-        'pre_shares': granted_pre_shares,
-        'pre_rata': granted_pre_rata,
-        'post_shares': granted_post_shares,
-        'post_rata': granted_post_rata
+        posts.append({
+            'name': 'Options Outstanding',
+            'pre_shares': granted_pre_shares,
+            'pre_rata': granted_pre_rata,
+            'post_shares': granted_post_shares,
+            'post_rata': granted_post_rata
 
-    })
+        })
 
     # Create and append the available option list
     available_pre_shares = securities.filter(
@@ -295,42 +297,39 @@ def financing_worksheet(request, new_money, pre_valuation, pool_rata):
         'price': price,
         'new_options': (available_post_shares - available_pre_shares),
         'new_shares': new_investor_shares}
-    return render(request, 'financing_worksheet.html', {'table': table, 'proforma': proforma, 'posts': posts})
+    return render(request, 'financing_summary.html', {'table': table, 'proforma': proforma, 'posts': posts})
 
 
 # @login_required
-def liquidation_worksheet(request, purchase_price):
+def liquidation_summary(request, purchase_price):
     """Renders the liquidation analysis."""
     purchase_cash = float(purchase_price)
-    round_price = share_price(purchase_cash)
-    order_by = request.GET.get('order_by', 'shareholder__investor')
+    # round_price = share_price(purchase_cash)
+    # order_by = request.GET.get('order_by', 'shareholder__investor')
 
-    certificates = Certificate.objects.order_by(order_by)
 
     liquidation = []
 
-    for certificate in certificates:
-        if certificate.vested == 0:
-            continue
-        proceeds = certificate.liquidated * round_price[certificate.security.seniority]
-        liquidation.append({
-            'investor': certificate.shareholder.investor.name,
-            'investor_slug': certificate.shareholder.investor.slug,
-            'investor_liquidated': certificate.shareholder.investor.liquidated,
-            'investor_proceeds': certificate.shareholder.investor.proceeds(purchase_cash),
-            'investor_rata': certificate.shareholder.investor.proceeds_rata(purchase_cash),
-            'shareholder': certificate.shareholder.name,
-            'shareholder_slug': certificate.shareholder.slug,
-            'certificate': certificate.name,
-            'certificate_slug': certificate.slug,
-            'vested': certificate.vested,
-            'liquidated': certificate.liquidated,
-            'preference': certificate.preference,
-            'proceeds': proceeds,
-            'proceeds_rata': proceeds/purchase_cash
-        })
+    investors = Investor.objects.select_related().order_by('name')
+    certificates = Certificate.objects.select_related()
 
-    table = LiquidationTable(liquidation)
-    RequestConfig(request, paginate={"per_page": 100}).configure(table)
+    total = {
+        'proceeds': certificates.proceeds(purchase_cash),
+        'preference': certificates.preference,
+        'liquidated': certificates.liquidated,
+    }
+
+    for investor in investors:
+        liquidation.append({
+            'name': investor.name,
+            'slug': investor.slug,
+            'preference': investor.preference,
+            'liquidated': investor.liquidated,
+            'proceeds': investor.proceeds(purchase_cash),
+            'proceeds_rata': investor.proceeds(purchase_cash) / total['proceeds']
+            })
+
+
+
     return render(
-            request, 'liquidation_worksheet.html', {'liquidation': liquidation})
+            request, 'liquidation_summary.html', {'liquidation': liquidation, 'total': total})

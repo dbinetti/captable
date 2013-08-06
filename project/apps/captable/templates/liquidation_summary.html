@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load captabletags %}
+{% load humanize %}
+
+
+{% block title %}
+  <title>
+    Liquidation Summary
+  </title>
+{% endblock title %}
+
+
+{% block content %}
+  <div class='container'>
+    <table id='liquidationSummary' class='table table-bordered table-hover table-condensed table-summary'>
+    <h3>Liquidation Summary</h3>
+      <thead>
+        <tr>
+          <th>
+            <a href="{% url 'investor_list' %}">Investor</a>
+            {% comment %}
+            <a class='pull-right glyphicon glyphicon-sort-by-alphabet-alt' href="?order_by=-shareholder__investor"></a>
+            <a class='pull-right glyphicon glyphicon-sort-by-alphabet' href="?order_by=shareholder__investor"></a>
+            {% endcomment %}
+          </th>
+          <th>Preference</th>
+          <th>Liquidated</th>
+          <th>Proceeds</th>
+          <th>Rata</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for investor in liquidation %}
+          <tr class='parent'>
+            <td ><a href="{% url 'investor_detail' investor.slug %}">{{investor.name}}</a></td>
+            <td class='text-right'>{{investor.preference|currency}}</td>
+            <td class='text-right'>{{investor.liquidated|shares}}</td>
+            <td class='text-right'>{{investor.proceeds|currency}}</td>
+            <td class='text-right'>{{investor.proceeds_rata|percentage}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+
+      <tfoot>
+        <tr>
+          <th >Totals</td>
+          <th class='text-right'>{{total.preference|currency}}</td>
+          <th class='text-right'>{{total.liquidated|shares}}</td>
+          <th class='text-right'>{{total.proceeds|currency}}</td>
+          <th class='text-right'>100.00%</td>
+        </tr>
+      </tfoot>
+
+    </table>
+    <small>Prepared on {% now "r" %}</small>
+  </div><!--/container-->
+
+
+{% endblock content %}
