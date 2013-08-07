@@ -1,61 +1,11 @@
-﻿/* Comments!
+﻿
 
+/*Padding support for fixed navbar*/
 body {
-    padding-top: 60px;
-    padding-bottom: 40px;
+    padding-top: 70px;
 }
 
-.table-h1 {
-    font-size: 110%;
-}
-
-.table-h2 {
-    font-size: 105%;
-    padding-left: 3%;
-    font-style: italic;
-}
-
-.table-h3 {
-    padding-left: 5%;
-    font-size: 103%;
-}
-
-.table-h4 {
-
-}
-
-.table-item {
-    padding-left: 10%;
-}
-
-
-.table-num {
-    text-align: right;
-}
-
-.table td {
-    text-align: right;
-}
-
-.float_right {
-    float: right;
-    width: 45%;
-}
-
-.float_left {
-    float: left;
-    width: 45%;
-}
-
-.right_nav_login {
-    text-align: right;
-    color: #777777;
-}
-
-.name {
-    text-align: left;
-}
-*/
+/*Pagination support for django-tables2*/
 .table-container ul.pagination {
     overflow: auto;
     margin: 0;
@@ -83,8 +33,14 @@ body {
 
 
 /*Adds popover support to glyphicons*/
-
 [rel="popover"] {
   cursor: pointer;
   display:inline-block; /* chrome-fix */
+}
+
+/*inline explanation for terms*/
+.inlinedef {
+    border-bottom: 1px dotted #ba0000;
+    cursor: help;
+    display: inline;
 }

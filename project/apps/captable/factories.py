@@ -8,21 +8,11 @@ from django.utils.text import slugify
 from .constants import *
 
 from .models import (
-    # Company,
     Investor,
     Shareholder,
     Security,
     Addition,
     Certificate)
-
-
-# class CompanyFactory(factory.DjangoModelFactory):
-#     FACTORY_FOR = Company
-#     FACTORY_DJANGO_GET_OR_CREATE = ('name',)
-
-#     name = "Test Company"
-#     slug = slugify(unicode(name))
-
 
 class InvestorFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Investor

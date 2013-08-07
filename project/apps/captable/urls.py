@@ -3,9 +3,12 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns(
     'apps.captable.views',
 
+    url(r'liquidation/$', 'liquidation_instructions', name='liquidation_instructions'),
+    url(r'financing/$', 'financing_instructions', name='financing_instructions'),
+
     url(r'summary/$', 'summary', name='summary'),
-    url(r'liquidation/(?P<purchase_price>\d+)$', 'liquidation', name='liquidation'),
-    url(r'financing/(?P<new_money>\d+),(?P<pre_valuation>\d+),(?P<pool_rata>\d+)', 'financing', name='financing'),
+    url(r'liquidation/(?P<purchase_price>\d+)$', 'liquidation_summary', name='liquidation_summary'),
+    url(r'financing/(?P<new_money>\d+),(?P<pre_valuation>\d+),(?P<pool_rata>\d+)$', 'financing_summary', name='financing_summary'),
 
     url(r'security/$', 'security_list', name='security_list'),
     url(r'investor/$', 'investor_list', name='investor_list'),

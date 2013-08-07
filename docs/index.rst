@@ -12,8 +12,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   intro
-
+.. include:: ../README.rst
 
 
 Indices and tables

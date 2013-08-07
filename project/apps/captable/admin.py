@@ -6,7 +6,6 @@ from .models import (
     Transaction,
     Investor,
     Addition,
-    # Company,
     Certificate)
 
 
@@ -29,14 +28,6 @@ class AdditionInline(admin.TabularInline):
     exclude = ('notes',)
 
 
-# class CompanyAdmin(admin.ModelAdmin):
-#     save_on_top = True
-#     list_display = ['name']
-#     ordering = ['name']
-#     prepopulated_fields = {"slug": ("name",)}
-#     filter_horizontal = ('owner',)
-
-
 class InvestorAdmin(admin.ModelAdmin):
     save_on_top = True
     list_display = ['name']
@@ -54,7 +45,6 @@ class ShareholderAdmin(admin.ModelAdmin):
 
 class SecurityAdmin(admin.ModelAdmin):
     save_on_top = True
-    # list_filter = ['company']
     list_display = (
         'date', 'name', 'security_type', 'price_cap',
         'discount_rate', 'interest_rate', 'pre')
@@ -73,14 +63,13 @@ class CertificateAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     list_display = [
         '__unicode__', 'shares', 'returned', 'cash', 'refunded',
-        'debt', 'forgiven', 'granted', 'exercised', 'cancelled']
+        'principal', 'forgiven', 'granted', 'exercised', 'cancelled']
     ordering = ['name']
     list_filter = ['security__security_type']
 
 admin.site.register(Shareholder, ShareholderAdmin)
 admin.site.register(Security, SecurityAdmin)
 admin.site.register(Investor, InvestorAdmin)
-# admin.site.register(Company, CompanyAdmin)
 admin.site.register(Transaction)
 admin.site.register(Addition)
 admin.site.register(Certificate, CertificateAdmin)

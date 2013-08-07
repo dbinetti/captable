@@ -6,11 +6,12 @@
     <meta charset="utf-8">
 
     {% block title %}
+      <title>Cap Table</title>
     {% endblock title %}
 
     {% block meta-tags %}
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta name="description" content="">
+      <meta name="description" content="Cap Table open-source application.  Manage your cap tables and learn how financing structures affect you as a founder.">
       <meta name="author" content="David E. Binetti">
       <meta name="copyright" content="&copy; 2013, David E. Binetti">
       {# <meta name="google-site-verification" content="KCGliPeEClMgbq3Ytr5kLv4sZag4alHUBMjMt_y2Db4" /> #}
@@ -27,7 +28,6 @@
     {% endblock style-libraries %}
 
     {% block styles %}
-
     {% endblock styles %}
 
   </head>
@@ -35,6 +35,33 @@
   <body>
 
     {% block navbar %}
+      <div class="navbar navbar-fixed-top">
+        {# <div class='container'> #}
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="{% url 'home' %}">Cap Table</a>
+          <div class="nav-collapse collapse navbar-responsive-collapse">
+            <ul class="nav navbar-nav">
+              <li><a href="{% url 'summary' %}">Summary</a></li>
+              <li><a href="{% url 'financing_instructions' %}">Financing</a></li>
+              <li><a href="{% url 'liquidation_instructions' %}">Liquidation</a></li>
+              <li class='dropdown'>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Items <b class="caret"></b></a>
+                <ul class='dropdown-menu'>
+                  <li><a href="{% url 'security_list' %}">Security List</a></li>
+                  <li><a href="{% url 'investor_list' %}">Investor List</a></li>
+                  <li><a href="{% url 'shareholder_list' %}">Shareholder List</a></li>
+                  <li><a href="{% url 'certificate_list' %}">Certificate List</a></li>
+                </ul>
+              </li>
+              <li><a href="{% url 'admin:index' %}">Admin</a></li>
+            </ul>
+          </div><!--/navbar collapse-->
+        {# </div><!--/container--> #}
+      </div><!--/navbar-->
     {% endblock navbar %}
 
     {% block notification %}
@@ -42,6 +69,20 @@
 
     {% block content %}
     {% endblock content %}
+
+    {% block footer %}
+      <div class='container'>
+          <hr>
+        <footer id="footer">
+          <ul class="nav nav-pills">
+            <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="http://github.com/dbinetti/captable/">GitHub</a><li>
+            <li><a href="http://captable.readthedocs.org">Docs</a></li>
+            <li class='pull-right'><a href="http://dbinetti.com">&copy; 2013 D. Binetti </a></li>
+          </ul>
+        </footer>
+      </div><!--/container-->
+    {% endblock footer %}
 
     {% block script-libraries %}
       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>

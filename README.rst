@@ -1,17 +1,10 @@
 Captable
 ========
 
-Note
-----
-This is in early alpha.  I'm a fan of releasing stuff early even when
-it isn't ready.  But simply be aware: it isn't ready.  It's rough, buggy,
-ugly and generally crappy.  I shipped it anyway.
-
-
 Introduction
 ------------
 
-Cap app is an application designed to manage capitalization tables.
+Captable is an application designed to manage capitalization tables.
 Typically cap tables are managed though spreadsheets written by attorneys;
 however, when capitalization structures get complicated (as often happens
 with multiple finacings, convertibles, options, etc.,) it becomes a serious
@@ -32,41 +25,13 @@ let me know.  I hope this tool will be used by entrepreneurs who are
 frustrated by Excel and find code a better vehicle by which to run
 financial calculations.
 
-Features
---------
-- Handles convertibles.
-- Handles stacked or sequenced preferences in liquidation.
-- Lots more undocumented.
+Documentation
+-------------
+For more information, including features, installation, tutorial, etc.,
+see the documentation at http://captable.rtfd.org.
 
-Installation
-------------
-- Standard django installation
-- Create superuser
+Example
+-------
+If you prefer to learn by example I have an instance of the app running
+at http://captable.herokuapp.com.  The username/password is 'admin/admin'.
 
-Tutorial
---------
-
-1.  Log in as admin.
-2.  Add a new company.
-3.  Go to your user and add that new company to your permisssions.
-4.  Add all your securities.
-5.  Add all your investors.
-6.  Add shareholders attached to those investors (could be the same.)
-7.  Add your certificates, meaning your stock certificates, options granted,
-convertible notes, etc.
-
-Examples
---------
-To see a fairly complicated example, load the 'example' fixture and hook
-up your admin account through the Users model.
-
-Tests
------
-Tests are all currently broken.
-
-SPECIAL NOTE
-============
-
-I am also using a text-based nonce authentication system I developed that
-I like a great deal more than username/password.  If you want to do it
-the more standard Django way then adjust the settings accordingly.

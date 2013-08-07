@@ -3,17 +3,45 @@
 
 {% block title %}
   <title>
-    Home
+    Cap Table
   </title>
 {% endblock title %}
 
-{% block home-active %}
-  active
-{% endblock %}
-
 
 {% block content %}
-  <div class='container'>
-    Homepage Content
-  </div><!--/container -->
+<div class='container'>
+  <div class='col-lg-8'>
+    <div class='jumbotron'>
+      <h1>Manage your Cap Table</h1>
+      <p>Cap Table is a simple application to help you manage your
+        startup capitalization tables -- and learn how different
+        financing structures can affect you as a founder.</p>
+    </div><!--/jumbotron-->
+    <h3>The application has five main views:</h3>
+    <dl class='dl-horizontal'>
+      <dt>Summary</dt>
+      <dd>This is the high-level view of the capitalization of the company.</dd>
+
+      <dt>Financing</dt>
+      <dd>This is a worksheet that calculates the results of a prospective financing.
+        It is also called a proforma, and details the pre-, new-, and post-money
+        capitalization.  It handles convertible debt conversions, prorata purchases,
+        and option-pool expansions.</dd>
+
+      <dt>Liquidation</dt>
+      <dd>This worksheet calculates the proceeds from a company sale.  It considers
+        all liquidation preferences, participation, conversion ratios and other
+        basic terms related to liquidation events.</dd>
+
+      <dt>Items</dt>
+      <dd>Each item that constitutes the cap table (securites, investors, certificates,
+        etc.) are available here through a REST-style interface if you want to see the
+        raw data.</dd>
+
+      <dt>Admin</dt>
+      <dd>Data entry and management are handled through the standard admin back-end,
+        which can be accessed through the login/password 'admin/admin'.</dd>
+    </dl>
+  </div><!-- /col-->
+</div>
 {% endblock content %}

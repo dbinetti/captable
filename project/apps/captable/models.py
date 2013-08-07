@@ -8,6 +8,8 @@ from django.db.models.query import QuerySet
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
+from django.utils.text import slugify
+
 from model_utils.managers import PassThroughManager
 
 from .constants import *
@@ -41,14 +43,68 @@ class Investor(models.Model):
     zipcode = models.CharField(max_length=20, blank=True, help_text="""
         The name of the contact person at the firm.""")
 
-    def get_absolute_url(self):
-        return reverse('investor', args=[str(self.slug)])
+    class Meta:
+        ordering = ['name']
 
     def __unicode__(self):
         return self.name
 
-    class Meta:
-        ordering = ['name']
+    def save(self, *args, **kwargs):
+        self.slug = slugify(unicode(self.name))
+        super(Investor, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('investor', args=[str(self.slug)])
+
+    def proceeds(self, purchase_price):
+        certificates = Certificate.objects.filter(
+            shareholder__investor=self)
+        return sum(filter(None, [c.proceeds(purchase_price) for c in certificates]))
+
+    @property
+    def liquidated(self):
+        certificates = Certificate.objects.filter(
+            shareholder__investor=self)
+        return sum(filter(None, [c.liquidated for c in certificates]))
+
+    @property
+    def outstanding(self):
+        certificates = Certificate.objects.filter(
+            shareholder__investor=self)
+        return sum(filter(None, [c.outstanding for c in certificates]))
+
+    @property
+    def paid(self):
+        certificates = Certificate.objects.filter(
+            shareholder__investor=self)
+        return sum(filter(None, [c.paid for c in certificates]))
+
+    @property
+    def principal(self):
+        certificates = Certificate.objects.filter(
+            shareholder__investor=self)
+        return sum(filter(None, [c.principal for c in certificates]))
+
+    @property
+    def preference(self):
+        certificates = Certificate.objects.filter(
+            shareholder__investor=self)
+        return sum(filter(None, [c.preference for c in certificates]))
+
+    def proceeds_rata(self, purchase_price):
+        proceeds = self.proceeds(purchase_price)
+        total = Certificate.objects.select_related().proceeds(purchase_price)
+        return proceeds / total
+
+    def prorata(self, new_shares):
+        certificates = Certificate.objects.filter(
+            shareholder__investor=self)
+        return sum(filter(None, [c.prorata(new_shares) for c in certificates]))
+
+    def exchanged(self, pre_valuation, price):
+        certificates = Certificate.objects.filter(
+            shareholder__investor=self)
+        return sum(filter(None, [c.exchanged(pre_valuation, price) for c in certificates]))
 
 
 class Shareholder(models.Model):
@@ -66,14 +122,18 @@ class Shareholder(models.Model):
     investor = models.ForeignKey(Investor, help_text="""
         Every shareholder has a parent Investor.""")
 
-    def get_absolute_url(self):
-        return reverse('shareholder', args=[str(self.slug)])
+    class Meta:
+        ordering = ['name']
 
     def __unicode__(self):
         return self.name
 
-    class Meta:
-        ordering = ['name']
+    def save(self, *args, **kwargs):
+        self.slug = slugify(unicode(self.name))
+        super(Shareholder, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('shareholder', args=[str(self.slug)])
 
 
 class Security(models.Model):
@@ -181,6 +241,10 @@ class Security(models.Model):
         return "{security}".format(
             security=self.name)
 
+    def save(self, *args, **kwargs):
+        self.slug = slugify(unicode(self.name))
+        super(Security, self).save(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse('security', args=[str(self.slug)])
 
@@ -200,6 +264,56 @@ class Security(models.Model):
             return u'Debt'
         elif self.security_type in [SECURITY_TYPE_OPTION]:
             return u'Options'
+
+    @property
+    def authorized(self):
+        return Addition.objects.select_related().filter(
+            security=self).aggregate(t=Sum('authorized'))['t']
+
+    @property
+    def available(self):
+        return self.authorized - self.outstanding
+
+    @property
+    def outstanding(self):
+        return Certificate.objects.select_related().filter(
+            security=self).outstanding
+
+    @property
+    def outstanding_rata(self):
+        outstanding = self.outstanding
+        total = Certificate.objects.select_related().outstanding
+        return outstanding / total
+
+    @property
+    def converted(self):
+        return Certificate.objects.select_related().filter(
+            security=self).converted
+
+    @property
+    def converted_rata(self):
+        converted = self.converted
+        total = Certificate.objects.select_related().converted
+        return converted / total
+
+    @property
+    def diluted(self):
+        if self.security_type == SECURITY_TYPE_OPTION:
+            return Addition.objects.select_related().filter(
+                security=self).aggregate(t=Sum('authorized'))['t']
+        else:
+            return Certificate.objects.select_related().filter(
+                security=self).diluted
+
+    @property
+    def diluted_rata(self):
+        diluted = self.diluted
+        certs = Certificate.objects.select_related().diluted
+        avail = Addition.objects.select_related().filter(
+            security__security_type=SECURITY_TYPE_OPTION).aggregate(
+                t=Sum('authorized'))['t']
+        total = sum(filter(None, [certs, avail]))
+        return diluted / total
 
 
 class Addition(models.Model):
@@ -271,10 +385,10 @@ class Certificate(models.Model):
         The cash paid for the transaction.  This will reflect the
         total purchase price for the shares, or the amount of debt issued.""")
     refunded = models.FloatField(default=0)
-    debt = models.FloatField(default=0, help_text="""
+    principal = models.FloatField(default=0, help_text="""
         Debt """)
     forgiven = models.FloatField(default=0, help_text="""
-        Forgiven debt.  Should equal cash in conversion.""")
+        Forgiven principal.  Should equal cash in conversion.""")
     granted = models.FloatField(default=0, help_text="""
         The total amount of the original option/warrant grant.""")
     exercised = models.FloatField(default=0)
@@ -311,6 +425,7 @@ class Certificate(models.Model):
         The date on which the grant expires.""")
     converted_date = models.DateField(blank=True, null=True, help_text="""
         The date the certificate converted.""")
+
     security = models.ForeignKey(Security)
     shareholder = models.ForeignKey(Shareholder)
 
@@ -318,6 +433,10 @@ class Certificate(models.Model):
 
     class Meta:
         ordering = ['name']
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(unicode(self.name))
+        super(Certificate, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return '{certificate} - {shareholder}'.format(
@@ -349,21 +468,21 @@ class Certificate(models.Model):
 
         # Preferred stock doesn't vest, as it is used by investors.
         if self.security.security_type == SECURITY_TYPE_PREFERRED:
-            return self.outstanding_shares
+            return self.outstanding
 
         # Convertibles don't vest, but they do convert at the default price
         elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE:
-            return self.outstanding_debt / self.security.default_conversion_price
+            return self.outstanding / self.security.default_conversion_price
 
         else:
             # Rights and shares are essentially equivalent in the vested
             # context; this simply assigns them for convenience.
             if self.security.security_type == SECURITY_TYPE_COMMON:
-                stake = self.outstanding_shares
+                stake = self.outstanding
             elif self.security.security_type == SECURITY_TYPE_WARRANT:
-                stake = self.outstanding_warrants
+                stake = self.outstanding
             else:
-                stake = self.outstanding_options
+                stake = self.outstanding
 
             # A "Single Trigger" is a provision in an agreement which
             # stipulates that all securities immediately vest in full
@@ -447,20 +566,45 @@ class Certificate(models.Model):
         else:
             return 0
 
+    # @property
+    # def outstanding_debt(self):
+    #     if self.security.security_type in [SECURITY_TYPE_CONVERTIBLE]:
+    #         return self.accrued - self.forgiven
+    #     else:
+    #         return 0
+
     @property
-    def outstanding_debt(self):
-        if self.security.security_type in [SECURITY_TYPE_CONVERTIBLE]:
-            return self.accrued - self.forgiven
+    def outstanding(self):
+        if self.security.security_type in [
+                SECURITY_TYPE_COMMON,
+                SECURITY_TYPE_PREFERRED]:
+            return self.shares - self.returned
+        elif self.security.security_type in [SECURITY_TYPE_WARRANT]:
+            return self.granted - self.cancelled - self.exercised
+        elif self.security.security_type in [SECURITY_TYPE_OPTION]:
+            return self.granted - self.cancelled - self.exercised
+        # elif self.security.security_type in [SECURITY_TYPE_CONVERTIBLE]:
+        #     return self.accrued - self.forgiven
+        else:
+            return 0
+
+
+
+    @property
+    def paid(self):
+        if self.security.security_type in [
+            SECURITY_TYPE_COMMON,
+            SECURITY_TYPE_PREFERRED,
+            SECURITY_TYPE_WARRANT]:
+            return self.cash - self.refunded
+        elif self.security.security_type in [
+            SECURITY_TYPE_CONVERTIBLE]:
+            return self.principal - self.forgiven
         else:
             return 0
 
     @property
-    def paid(self):
-        return self.cash - self.refunded
-
-    @property
     def converted(self):
-        # TODO Change to diluted?
         """Calculate the number of shares on an ``as converted`` basis.
 
         All securities have the potential to eventually become
@@ -482,6 +626,40 @@ class Certificate(models.Model):
 
         # Converted assumes all rights are exercised fully,
         # even the unvested portion
+        # TODO: this should included vested
+        elif self.security.security_type in [
+                SECURITY_TYPE_OPTION,
+                SECURITY_TYPE_WARRANT]:
+            # return self.granted - self.cancelled - self.exercised
+            return 0
+
+        # All that remains is common stock, which
+        # by definition requires no conversion.
+        else:
+            return self.outstanding_shares
+
+    @property
+    def diluted(self):
+        """Calculate the number of shares on an ``fully diluted`` basis.
+
+        All securities have the potential to eventually become
+        shares of common stock.  This function takes the transaction
+        and produces the number of shares of common stock it represents
+        if all the possible issues that could be distributed and exercised
+        were distributed and exercised.
+        """
+        # Preferred stock converts into a multiple of common stock.
+        if self.security.security_type == SECURITY_TYPE_PREFERRED:
+            return self.outstanding_shares * self.security.conversion_ratio
+
+        # The as-converted number assumes the default price,
+        # so use the ``exchanged`` function
+        elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE:
+            return self.exchanged()
+
+        # Converted assumes all rights are exercised fully,
+        # even the unvested portion
+        # TODO: the difference here from converted should be one of VESTING
         elif self.security.security_type in [
                 SECURITY_TYPE_OPTION,
                 SECURITY_TYPE_WARRANT]:
@@ -516,8 +694,8 @@ class Certificate(models.Model):
         if self.security.security_type in [SECURITY_TYPE_PREFERRED,
             SECURITY_TYPE_COMMON] and self.cash and self.shares:
             return self.cash / self.shares
-        elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE and self.outstanding_debt:
-            return self.outstanding_debt / self.exchanged(pre_valuation, price)
+        elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE and self.outstanding:
+            return self.outstanding / self.exchanged(pre_valuation, price)
         else:
             return 0
 
@@ -567,9 +745,9 @@ class Certificate(models.Model):
             else:
                 converted_date = datetime.date.today()
             # Convertible debt interest is nearly always simple interest.
-            interest = self.debt * self.security.interest_rate * (
+            interest = self.principal * self.security.interest_rate * (
                 (converted_date - self.date).days)/365
-            return round(self.debt + interest, 2)
+            return round(self.principal + interest, 2)
 
         else:
             return None
@@ -597,14 +775,14 @@ class Certificate(models.Model):
 
             # Choice A is the the value of the original loan in
             # equivalent dollars per the discount rate.
-            discounted = self.outstanding_debt / (1-self.security.discount_rate)
+            discounted = self.accrued / (1-self.security.discount_rate)
 
             # Choice B is the value of the original loan in
             # equivalent dollars per the capped value in relation
             # to the pre-valuation
             if not pre_valuation:
                 pre_valuation = self.security.pre
-            capped = self.outstanding_debt * (pre_valuation/self.security.price_cap)
+            capped = self.accrued * (pre_valuation/self.security.price_cap)
 
             # Then, simply pick whichever approach is best and return that.
             return max(discounted, capped)
@@ -646,7 +824,7 @@ class Certificate(models.Model):
             return self.discounted(pre_valuation) / price
         else:
             # Use the accrued value divided by the default price.
-            return self.outstanding_debt / self.security.default_conversion_price
+            return self.accrued / self.security.default_conversion_price
 
     def prorata(self, new_shares):
         """Return the Investor's prorata.
@@ -671,10 +849,10 @@ class Certificate(models.Model):
         if self.is_prorata:
 
             # Calculation of the rata is done on a fully-diluted basis.
-            fully_diluted = self.converted
+            fully_diluted = Security.objects.diluted
 
             # Get the current rata
-            current_rata = self.outstanding_shares / fully_diluted
+            current_rata = self.outstanding / fully_diluted
 
             # And apply it to the new offering.
             return current_rata * new_shares
