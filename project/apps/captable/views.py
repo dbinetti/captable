@@ -81,8 +81,14 @@ def certificate_detail(request, certificate):
 def summary(request):
     """Renders the summary cap table."""
     securities = Security.objects.select_related().order_by('security_type', 'date')
+    options_available = securities.filter(security_type=SECURITY_TYPE_OPTION).available
+    options_available_rata = options_available / securities.diluted
+    options = {
+        'available': options_available,
+        'available_rata': options_available_rata,
+    }
     return render(
-        request, 'summary.html', {'securities': securities})
+        request, 'summary.html', {'securities': securities, 'options': options})
 
 def financing_instructions(request):
     return render(request, 'financing_instructions.html')

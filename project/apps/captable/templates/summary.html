@@ -90,6 +90,14 @@
         </tr>
       </tbody>
     </table>
+    <div class='panel'>
+      <div class="panel-heading">
+        <h4 class='panel-title'>Options Available</h4>
+      </div>
+      Available: {{options.available|shares}}<br>
+      Rata: {{options.available_rata|percentage}}
+    </div><!--/panel-->
+
   <small>Prepared on {% now "r" %}</small>
   </div> <!-- /container -->
 {% endblock content %}
