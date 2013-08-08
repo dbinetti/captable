@@ -19,25 +19,62 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         self.common = CommonSecurity(
-            addition__authorized=100000000,
-            name="Common Stock"
+            name="Common Stock",
+            pre=7000,
+            price_per_share=.001,
+            date=five_years_ago
+        )
+
+        self.expansion_common = AdditionFactory(
+            authorized=10000000,
+            security=self.common,
+            date=five_years_ago,
         )
 
         self.seriesA = PreferredSecurity(
-            addition__authorized=5000000,
             name="Series A",
-            price_per_share=.5
+            price_per_share=.625,
+            seniority=2,
+            pre=5000000,
+            date=two_years_ago
+        )
+
+        self.expansion_seriesA = AdditionFactory(
+            authorized=10000000,
+            security=self.seriesA,
+            date=two_years_ago,
         )
 
         self.seriesB = PreferredSecurity(
-            addition__authorized=5000000,
             name="Series B",
-            price_per_share=1
+            price_per_share=1.72414,
+            seniority=3,
+            pre=20000000,
+            date=one_year_ago
+        )
+
+        self.expansion_seriesB = AdditionFactory(
+            authorized=10000000,
+            security=self.seriesB,
+            date=one_year_ago,
         )
 
         self.options = OptionSecurity(
-            addition__authorized=1000000,
-            name="Option Plan"
+            name="Option Plan",
+            price_per_share=.10,
+            date=five_years_ago,
+        )
+
+        self.expansion1 = AdditionFactory(
+            authorized=1000000,
+            security=self.options,
+            date=five_years_ago,
+        )
+
+        self.expansion2 = AdditionFactory(
+            authorized=1900000,
+            security=self.options,
+            date=one_year_ago
         )
 
         self.investor_common1 = InvestorFactory(
@@ -106,20 +143,18 @@ class Command(BaseCommand):
         self.certificatePA01 = CertificateFactory(
             security=self.seriesA,
             shareholder=self.shareholder_seriesA1,
-            shares=2000000,
+            shares=1600000,
             cash=1000000,
             is_prorata=True,
             date=two_years_ago,
-            vesting_start=two_years_ago
         )
 
         self.certificatePB01 = CertificateFactory(
             security=self.seriesB,
             shareholder=self.shareholder_seriesB1,
-            shares=10000000,
-            cash=10000000,
+            shares=2900000,
+            cash=5000000,
             date=one_year_ago,
-            vesting_start=one_year_ago
         )
 
         self.certificateOP01 = CertificateFactory(

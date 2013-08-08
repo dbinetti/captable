@@ -46,15 +46,6 @@ def investor_list(request):
 
 
 # @login_required
-def shareholder_list(request):
-    """Renders the shareholder summary table"""
-    shareholders = get_list_or_404(Shareholder.objects.order_by('name'))
-    table = ShareholderTable(shareholders)
-    RequestConfig(request).configure(table)
-    return render(request, "shareholder_list.html", {'table': table})
-
-
-# @login_required
 def security_list(request):
     securities = get_list_or_404(Security.objects.order_by('security_type'))
     table = SecurityTable(securities)
@@ -80,12 +71,6 @@ def security_detail(request, security):
 def investor_detail(request, investor):
     investor = get_object_or_404(Investor, slug__iexact=investor)
     return render(request, "investor_detail.html", {'investor': investor})
-
-
-# @login_required
-def shareholder_detail(request, shareholder):
-    shareholder = get_object_or_404(Shareholder, slug__iexact=shareholder)
-    return render(request, "shareholder_detail.html", {'shareholder': shareholder})
 
 
 # @login_required

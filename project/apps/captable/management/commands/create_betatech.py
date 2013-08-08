@@ -24,7 +24,7 @@ class Command(BaseCommand):
 
         self.convertible = ConvertibleSecurity(
             name="Convertible Debt",
-            default_conversion_price=.5,
+            price_per_share=.5,
             price_cap=5000000
         )
 
