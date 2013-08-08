@@ -101,7 +101,7 @@ class PreferredSecurity(SecurityFactory):
 class ConvertibleSecurity(SecurityFactory):
     name = "Test Convertible"
     security_type = SECURITY_TYPE_CONVERTIBLE
-    default_conversion_price = .1
+    price_per_share = .1
     discount_rate = .1
     interest_rate = .1
     price_cap = 1000000

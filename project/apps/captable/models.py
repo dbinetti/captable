@@ -31,17 +31,22 @@ class Investor(models.Model):
     name = models.CharField(max_length=200, help_text="""
         The name of the investor, which may be the same as the shareholder
         name.  For VCs, this would be the name of the VC firm itself.""")
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, help_text="""
+        The slug is the slugified version of the investor name, is unique,
+        and is used in composing the URL for the investor.""")
     contact = models.CharField(max_length=200, blank=True, help_text="""
-        The name of the contact person at the firm.""")
+        If the investor is a professional firm, the contact is the name
+        to whom correspondance at the firm should be directed.""")
     address = models.CharField(max_length=200, blank=True, help_text="""
-        The address of the contact person at the firm.""")
+        The street address of the investor.""")
     city = models.CharField(max_length=200, blank=True, help_text="""
-        The city of the contact person at the firm.""")
+        The mailing city of the investor.""")
     state = models.CharField(max_length=2, blank=True, help_text="""
-        The state of the contact person at the firm.""")
+        The mailing state (two-letter abbreviation) of the investor.""")
     zipcode = models.CharField(max_length=20, blank=True, help_text="""
-        The name of the contact person at the firm.""")
+        The mailing zipcode of the investor.""")
+    notes = models.TextField(blank=True, help_text="""
+        A free-form notes field added for convenience.""")
 
     class Meta:
         ordering = ['name']
@@ -54,7 +59,7 @@ class Investor(models.Model):
         super(Investor, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('investor', args=[str(self.slug)])
+        return reverse('investor_detail', args=[str(self.slug)])
 
     def proceeds(self, purchase_price):
         certificates = Certificate.objects.filter(
@@ -118,9 +123,11 @@ class Shareholder(models.Model):
     name = models.CharField(max_length=200, help_text="""
         The legal name of the shareholder.  In the case of venture investment,
         this would be the formal, legal name of the fund.""")
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, help_text="""
+        The slug is the slugified version of the investor name, is unique,
+        and is used in composing the URL for the investor.""")
     investor = models.ForeignKey(Investor, help_text="""
-        Every shareholder has a parent Investor.""")
+        Every shareholder must a parent Investor.""")
 
     class Meta:
         ordering = ['name']
@@ -133,7 +140,7 @@ class Shareholder(models.Model):
         super(Shareholder, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('shareholder', args=[str(self.slug)])
+        return reverse('shareholder_detail', args=[str(self.slug)])
 
 
 class Security(models.Model):
@@ -166,13 +173,14 @@ class Security(models.Model):
 
     name = models.CharField(max_length=50, help_text="""
         The name of the round of funding.
-        Common names are Series A, Series Seed, Founder Stock,
+        Usual names are Common Stock, Series A, Series Seed, Founder Stock,
         Bridge Loan, Option Round A, Bridge Warrants, Convertible,
-        or any other way to which the round is commonly referred.""")
+        or any other way to which the security is commonly referred.""")
     slug = models.SlugField(unique=True, help_text="""
         The slug is automatically generated based on the security name,
         which you can overwrite.""")
-    date = models.DateField(default=datetime.date.today)
+    date = models.DateField(default=datetime.date.today, help_text="""
+        The date the security was created by the board.""")
     security_type = models.IntegerField(max_length=20, choices=SECURITY_TYPE, help_text="""
         The specific type of the security issued.  Choices are:
         - Common Stock.  This stock is typically issued to founders and employees.
@@ -184,14 +192,16 @@ class Security(models.Model):
                     granted to investors, and is usually for preferred stock.""")
     conversion_ratio = models.FloatField(blank=True, null=True, help_text="""
         Preferred shares may convert into common shares at a factor other
-        than 1:1.  The conversion ratio represents that conversion factor.""")
+        than 1:1.  The conversion ratio represents that conversion factor.  If
+        a convertible, this should also be set to the conversion ratio of the
+        security into which the convertible defaults under change of control.""")
     liquidation_preference = models.FloatField(blank=True, null=True, help_text="""
         In a liquidation preferred shares may receive proceeds differently
         than common shares.  The most common of these 'preferences' is the
         liquidation preference, which ensures that the preferred stock is
         paid before common stock in a company sale.  This variable represents
         the factor of initial principal to be returned before common is paid.
-        1 X is typical, so enter 1.0 here.  NOTE: While convertibles do not
+        1 X is typical.  NOTE: While convertibles do not
         have a direct liquidation preference, they will adopt the preference of
         the security into which they convert.  Therefore, be sure to add that
         preference here for convertibles as well.  If you can not determine
@@ -204,32 +214,37 @@ class Security(models.Model):
         If 'is participating' is true, refers to the cap participation in
         liquidation.  Set this to zero for a fully participating security.""")
     price_per_share = models.FloatField(blank=True, null=True, help_text="""
-        The actual price-per-share paid as part of the term sheet.  This is a
-        denormalization provided for convenience, and historical reference
-        and to address any deviation from actual due to rounder error.""")
+        For equity, this is the actual price-per-share paid as
+        indicated on the term sheet (or from the proforma.)  For rights
+        (ie, options and warrants) this is the strike price at which the
+        underlying security may be purchased.  For convertible debt, this
+        represents the default price at which the convertible will be
+        exchanged if there is a change of control before a financing event. """)
     price_cap = models.IntegerField(blank=True, null=True, help_text="""
-        Specific to converible notes: the valuation cap set for the offering in
-        total valuation terms, from which a price per share will be derived at conversion
-        (at the next round of financing.)""")
+        Specific to convertible notes: the valuation cap from which a price per
+        share will be derived at conversion (at the next round of financing.)""")
     discount_rate = models.FloatField(blank=True, null=True, help_text="""
         Specific to convertible notes: the discount rate at which the debt will covert
         assuming that there is no price-cap or the price cap is not met.""")
     interest_rate = models.FloatField(blank=True, null=True, help_text="""
         Specific to debt, the interest rate of the loan (assumed to be simple interest.)""")
-    default_conversion_price = models.FloatField(blank=True, null=True, help_text="""
-        Specific to debt, the default conversion price upon change of control before conversion.""")
+    # default_conversion_price = models.FloatField(blank=True, null=True, help_text="""
+    #     Specific to debt, the default conversion price of the debt if there is a
+    #     change of control before a financing event.""")
     pre = models.FloatField(blank=True, null=True, help_text="""
-        The pre-money valuation.""")
+        The pre-money valuation of the round.  If a convertible debt instrument,
+        the pre-money valuation of the default instrument into which the debt will
+        convert (usually that of the most recent equity round.)""")
     notes = models.TextField(blank=True, help_text="""
         A free-form notes field.""")
     seniority = models.IntegerField(blank=True, default=1, help_text="""
         Securities liquidate in a paricular order when the company exits.  This
-        indicates the sequence of liquidiation, with a higher number
+        indicates the sequence of liquidation, with a higher number
         representing more senior security.  Common stock typically is
         liquidated last, and has a seniority of '1' (the default seniority.)""")
-    conversion_security = models.ForeignKey('self', blank=True, null=True, help_text="""
-        The security into which this security converts.  This is often
-        not yet known; if so do not enter anything here.""")
+    # conversion_security = models.ForeignKey('self', blank=True, null=True, help_text="""
+    #     The security into which this security converts.  This is often
+    #     not yet known; if so do not enter anything here.""")
 
     objects = PassThroughManager.for_queryset_class(SecurityQuerySet)()
 
@@ -246,7 +261,7 @@ class Security(models.Model):
         super(Security, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('security', args=[str(self.slug)])
+        return reverse('security_detail', args=[str(self.slug)])
 
     @property
     def security_class(self):
@@ -326,10 +341,11 @@ class Addition(models.Model):
     allows for the total authorized sum of each Security to fluctutate
     through time as needed by the board.
     """
-    date = models.DateField(default=datetime.date.today)
+    date = models.DateField(default=datetime.date.today, help_text="""
+        The date the additional shares/options were added to the security.""")
     authorized = models.IntegerField(blank=True, null=True, help_text="""
-        This is the number of new shares added to the authorized number of
-        shares available to the security itself.""")
+        This is the number of new shares/options added to the authorized
+        number of shares available to the security itself.""")
     notes = models.TextField(blank=True, help_text="""
         A free-form notes field included for convenience.""")
     security = models.ForeignKey(Security, blank=True, null=True, help_text="""
@@ -343,9 +359,6 @@ class Addition(models.Model):
             authorized=self.authorized,
             security=self.security,
             date=self.date)
-
-    def get_absolute_url(self):
-        return reverse('addition', args=[str(self.id)])
 
 
 class Certificate(models.Model):
@@ -443,7 +456,7 @@ class Certificate(models.Model):
             certificate=self.name, shareholder=self.shareholder.name)
 
     def get_absolute_url(self):
-        return reverse('certificate', args=[str(self.slug)])
+        return reverse('certificate_detail', args=[str(self.slug)])
 
 
     @property
@@ -472,7 +485,7 @@ class Certificate(models.Model):
 
         # Convertibles don't vest, but they do convert at the default price
         elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE:
-            return self.outstanding / self.security.default_conversion_price
+            return self.outstanding / self.security.price_per_share
 
         else:
             # Rights and shares are essentially equivalent in the vested
@@ -824,7 +837,7 @@ class Certificate(models.Model):
             return self.discounted(pre_valuation) / price
         else:
             # Use the accrued value divided by the default price.
-            return self.accrued / self.security.default_conversion_price
+            return self.accrued / self.security.price_per_share
 
     def prorata(self, new_shares):
         """Return the Investor's prorata.
@@ -870,27 +883,3 @@ class Certificate(models.Model):
         else:
             return 0
 
-
-class Transaction(models.Model):
-    """Transactional notes related to a certificate.
-
-    Originally this model served to track each atomic transaction.  For
-    simplicity it has been downgraded to a logger, where notes
-    related to any changes in Certificate instances may be recorded.
-    """
-
-    date = models.DateField(default=datetime.date.today)
-    notes = models.TextField(blank=True, help_text="""
-        A free form notes field.""")
-    certificate = models.ForeignKey(Certificate, help_text="""
-        The certificate to which this transaction is related.""")
-
-    class Meta:
-        ordering = ['date']
-
-    def __unicode__(self):
-        return '{certificate}'.format(
-            certificate=self.certificate.name)
-
-    def get_absolute_url(self):
-        return reverse('transaction', args=[str(self.id)])
