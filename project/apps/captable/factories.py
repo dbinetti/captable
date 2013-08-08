@@ -31,14 +31,6 @@ class ShareholderFactory(factory.DjangoModelFactory):
     investor = factory.SubFactory(InvestorFactory)
 
 
-class AdditionFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Addition
-    FACTORY_DJANGO_GET_OR_CREATE = ('security',)
-
-    date = datetime.date.today()
-    authorized = 100000000
-
-
 class SecurityFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Security
     FACTORY_DJANGO_GET_OR_CREATE = ('slug',)
@@ -48,7 +40,14 @@ class SecurityFactory(factory.DjangoModelFactory):
     date = datetime.date.today()
     security_type = SECURITY_TYPE_COMMON
     seniority = 1
-    addition = factory.RelatedFactory(AdditionFactory, 'security')
+
+
+class AdditionFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = Addition
+
+    date = datetime.date.today()
+    authorized = 100000000
+    security = factory.SubFactory(SecurityFactory)
 
 
 class CertificateFactory(factory.DjangoModelFactory):
@@ -66,16 +65,6 @@ class CertificateFactory(factory.DjangoModelFactory):
     vesting_immediate = 0.0
 
 
-# class TransactionFactory(factory.DjangoModelFactory):
-#     FACTORY_FOR = Transaction
-
-#     date = datetime.date.today()
-#     shareholder = factory.SubFactory(ShareholderFactory)
-#     security = factory.SubFactory(SecurityFactory)
-#     vesting_start = datetime.date.today()
-#     vesting_term = 4.0
-#     vesting_cliff = 1.0
-#     vesting_immediate = 0.0
 
 # Security Factories
 # #####################
@@ -112,7 +101,6 @@ class OptionSecurity(SecurityFactory):
     name = "Test Option"
     security_type = SECURITY_TYPE_OPTION
     seniority = 1
-    addition = factory.RelatedFactory(AdditionFactory, 'security', authorized=200)
 
 
 class WarrantSecurity(SecurityFactory):

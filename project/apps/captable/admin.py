@@ -3,7 +3,6 @@ from django.contrib import admin
 from .models import (
     Shareholder,
     Security,
-    Transaction,
     Investor,
     Addition,
     Certificate)
@@ -20,7 +19,7 @@ class AdditionInline(admin.TabularInline):
         (None, {
             'fields': ['date', 'authorized', 'notes'],
             'description': "The additional shares/options authorized\
-            as this class of security."
+            for this class of security."
             },
         ),
     ]
@@ -29,7 +28,7 @@ class AdditionInline(admin.TabularInline):
 
 class InvestorAdmin(admin.ModelAdmin):
     save_on_top = True
-    list_display = ['name']
+    list_filter = ['shareholder__certificate__security']
     ordering = ['name']
     prepopulated_fields = {"slug": ("name",)}
     fieldsets = [
@@ -75,8 +74,8 @@ class InvestorAdmin(admin.ModelAdmin):
 class SecurityAdmin(admin.ModelAdmin):
     save_on_top = True
     list_display = (
-        'date', 'name', 'security_type', 'price_cap',
-        'discount_rate', 'interest_rate', 'pre')
+        'date', 'name', 'security_type', 'pre','seniority')
+    list_filter = ['security_type']
     ordering = ['date']
     fieldsets = [
         (None, {
