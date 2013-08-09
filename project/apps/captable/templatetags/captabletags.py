@@ -51,3 +51,14 @@ def mils(value):
     except (ValueError, TypeError, UnicodeEncodeError):
         return ''
     return '${0:,}M'.format(value)
+
+
+@register.filter(name='ratio')
+def ratio(value):
+    """Returns single-digit ratio"""
+    try:
+        value = float(value)
+    except (ValueError, TypeError, UnicodeEncodeError):
+        return ''
+    return '{0:0.1f}'.format(value)
+

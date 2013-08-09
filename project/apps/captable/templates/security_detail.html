@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load captabletags %}
+{% load humanize %}
 
 {% block title %}
 <title>
@@ -8,6 +10,44 @@
 
 {% block content %}
   <div class='container'>
-    {{security}}, {{security.date}}<br>
+    <div class='panel'>
+      <div class="panel-heading">
+        <h4 class='panel-title'>{{security}}</h4>
+      </div>
+      Date: {{security.date}}<br>
+      Type: {{security.get_security_type_display}}<br>
+
+      {% if security.get_security_type_display == 'Common' %}
+          Price: {{security.price_per_share|price}}<br>
+          Pre: {{security.pre|mils}}
+      {% elif security.get_security_type_display == 'Preferred' %}
+          Price: {{security.price_per_share|price}}<br>
+          Pre: {{security.pre|mils}}<br>
+          Conversion Ratio: {{security.conversion_ratio|ratio}}<br>
+          Preference: {{security.liquidation_preference|ratio}}<br>
+          Seniority: {{security.seniority}}<br>
+          Participation: {{security.is_participating}}<br>
+        {% if security.is_participating %}
+            Participation Cap: {{security.participation_cap}}<br>
+        {% endif %}
+
+      {% elif security.get_security_type_display == 'Debt' %}
+        Interest Rate: {{security.interest_rate|percentage}}<br>
+        Discount Rate: {{security.discount_rate|percentage}}<br>
+        Price Cap: {{security.price_cap|mils}}<br>
+
+      {% elif security.get_security_type_display == 'Option' %}
+        Strike Price: {{security.price_per_share|price}}
+
+      {% elif security.get_security_type_display == 'Warrant' %}
+        Strike Price: {{security.price_per_share|price}}
+      {% endif %}
+    </div><!--/panel-->
+    {% if security.notes %}
+    <div class='well'>
+        <strong>Notes</strong><br>
+        {{security.notes}}
+    </div><!--/well-->
+    {% endif %}
   </div><!--/container-->
 {% endblock content %}

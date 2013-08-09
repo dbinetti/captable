@@ -228,9 +228,6 @@ class Security(models.Model):
         assuming that there is no price-cap or the price cap is not met.""")
     interest_rate = models.FloatField(blank=True, null=True, help_text="""
         Specific to debt, the interest rate of the loan (assumed to be simple interest.)""")
-    # default_conversion_price = models.FloatField(blank=True, null=True, help_text="""
-    #     Specific to debt, the default conversion price of the debt if there is a
-    #     change of control before a financing event.""")
     pre = models.FloatField(blank=True, null=True, help_text="""
         The pre-money valuation of the round.  If a convertible debt instrument,
         the pre-money valuation of the default instrument into which the debt will
@@ -242,9 +239,6 @@ class Security(models.Model):
         indicates the sequence of liquidation, with a higher number
         representing more senior security.  Common stock typically is
         liquidated last, and has a seniority of '1' (the default seniority.)""")
-    # conversion_security = models.ForeignKey('self', blank=True, null=True, help_text="""
-    #     The security into which this security converts.  This is often
-    #     not yet known; if so do not enter anything here.""")
 
     objects = PassThroughManager.for_queryset_class(SecurityQuerySet)()
 
