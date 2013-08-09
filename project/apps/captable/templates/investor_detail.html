@@ -9,21 +9,24 @@
 
 
 {% block content %}
-<div class='container'>
-  {{investor}}<br><br>
-  <strong>Related Funds</strong><br>
-  {% for shareholder in investor.shareholder_set.all %}
-    {{shareholder}}<br>
-  {% endfor %}<br><br>
-  {% for certificate in certificates %}
-    {{certificate.shareholder.name}}, {{certificate.name}}<br>
-  {% endfor %}
-
-  {% if investor.contact %}
-    <strong>Contact</strong><br>
-    {{investor.contact}}<br>
-    {{investor.address}}<br>
-    {{investor.city}}, {{investor.state}}  {{investor.zipcode}}
-  {% endif %}
-</div><!--container-->
+  <div class='container'>
+    <div class='panel'>
+      <div class='panel-heading'>
+        <h4 class='panel-title'>{{investor}}</h4>
+      </div>
+        {% if investor.contact %}
+          <strong>Contact</strong><br>
+          {{investor.contact}}<br>
+          {{investor.address}}<br>
+          {{investor.city}}, {{investor.state}}  {{investor.zipcode}}
+        {% else %}
+          No Contact Information
+        {% endif %}
+    </div><!--/panel-->
+    {% if notes %}
+    <div class='well'>
+      <strong>Notes</strong><br>
+      {{investor.notes}}
+    {% endif %}
+  </div><!--container-->
 {% endblock content %}
