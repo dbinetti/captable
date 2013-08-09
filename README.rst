@@ -1,3 +1,5 @@
+https://www.codeship.io/projects/66260e20-e34a-0130-caa5-5e7530cb92bf/status
+
 Captable
 ========
 
