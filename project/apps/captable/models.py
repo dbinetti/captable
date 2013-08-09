@@ -267,12 +267,12 @@ class Security(models.Model):
         - Rights: Representing a right to purchase equity, but is not
                   actual ownership.
         """
-        if self.security_type in [SECURITY_TYPE_COMMON, SECURITY_TYPE_PREFERRED, SECURITY_TYPE_WARRANT]:
+        if self.security_type in [SECURITY_TYPE_COMMON, SECURITY_TYPE_PREFERRED]:
             return u'Equity'
         elif self.security_type in [SECURITY_TYPE_CONVERTIBLE]:
             return u'Debt'
-        elif self.security_type in [SECURITY_TYPE_OPTION]:
-            return u'Options'
+        elif self.security_type in [SECURITY_TYPE_OPTION, SECURITY_TYPE_WARRANT]:
+            return u'Rights'
 
     @property
     def authorized(self):
@@ -435,8 +435,7 @@ class Certificate(models.Model):
         often promised before they are officially granted; this boolean allows
         tracking of the promises to sure the option pool is not exceeded.  Set
         this to true when the options are officially sanctioned by the board.""")
-    # is_vested = models.BooleanField(default=False, help_text="""
-        # Transaction is fully vested""")
+
     vesting_start = models.DateField(blank=True, null=True, help_text="""
         The start date of the vesting""")
     vesting_stop = models.DateField(blank=True, null=True, help_text="""

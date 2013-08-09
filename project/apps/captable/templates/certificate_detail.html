@@ -1,17 +1,46 @@
 {% extends 'base.html' %}
+{% load captabletags %}
+{% load humanize %}
 
 {% block title %}
-  <title>
-    Certificate Detail
-  </title>
+<title>
+  Certificate Detail
+</title>
 {% endblock title %}
 
 {% block content %}
   <div class='container'>
-    {{certificate.name}}<br><br>
+    <div class='panel'>
+      <div class="panel-heading">
+        <h4 class='panel-title'>{{certificate.name}}</h4>
+      </div>
+      Date: {{certificate.date}}<br>
+      Security: {{certificate.security}}<br>
+      Investor: {{certificate.shareholder.investor}}
+        {% if certificate.shareholder.investor.name != certificate.shareholder.name %}
+        ({{certificate.shareholder}})
+        {% endif %}
+        <br>
 
-    {% for t in transactions %}
-      {{t.date}}, - {{t.notes}}<br>
-    {% endfor %}
+      {% if certificate.security.security_class == 'Equity' %}
+        Shares: {{certificate.shares|shares}}<br>
+        Returned: {{certificate.returned|shares}}<br>
+        Cash: {{certificate.cash|currency}}<br>
+        Refunded: {{certificate.refunded|currency}}<br>
+      {% elif certificate.security.security_class == 'Debt' %}
+        Principal: {{certificate.principal|currency}}<br>
+        Forgiven: {{certificate.forgiven|currency}}<br>
+      {% elif certificate.security.security_class == 'Rights' %}
+        Granted: {{certificate.granted|shares}}<br>
+        Exercised: {{certificate.exercised|shares}}<br>
+        Cancelled: {{certificate.cancelled|shares}}<br>
+      {% endif %}
+    </div><!--/panel-->
+    {% if security.notes %}
+    <div class='well'>
+      <strong>Notes</strong><br>
+      {{security.notes}}
+    </div><!--/well-->
+    {% endif %}
   </div><!--/container-->
 {% endblock content %}
