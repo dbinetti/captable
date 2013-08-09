@@ -5,9 +5,9 @@ from dateutil.relativedelta import relativedelta
 
 from django.test import TestCase
 
-from captable.models import *
-from captable.constants import *
-from captable.factories import *
+from apps.captable.models import *
+from apps.captable.constants import *
+from apps.captable.factories import *
 
 # Time-based globals
 today = datetime.date.today()
