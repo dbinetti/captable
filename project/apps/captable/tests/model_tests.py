@@ -171,6 +171,8 @@ class MainTests(TestCase):
         self.assertEqual(self.common.pre, 7000)
 
 
+    def test_vested(self):
+        self.assertEqual(self.certificateCS01.vested, 3500000)
 
 
 
