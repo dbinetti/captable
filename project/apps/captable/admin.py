@@ -17,13 +17,13 @@ class AdditionInline(admin.TabularInline):
     model = Addition
     fieldsets = [
         (None, {
-            'fields': ['date', 'authorized', 'notes'],
-            'description': "The additional shares/options authorized\
+            'fields': ['date', 'authorized'],
+            'description': "The number of shares/options authorized\
             for this class of security."
             },
         ),
     ]
-    extra = 0
+    extra = 1
 
 
 class InvestorAdmin(admin.ModelAdmin):
@@ -79,7 +79,9 @@ class SecurityAdmin(admin.ModelAdmin):
     ordering = ['date']
     fieldsets = [
         (None, {
-            'fields': ['name', 'slug', 'date', 'security_type', 'price_per_share', 'pre', 'conversion_ratio', 'liquidation_preference', 'seniority'],
+            'fields': ['name', 'slug', 'date', 'security_type',
+                'price_per_share', 'pre', 'conversion_ratio',
+                'liquidation_preference', 'seniority'],
             'description': "A Security represents a specific financing \
             instrument, and is usually accompanied by its own form of \
             legal documentation.  Examples of securities include common \
@@ -111,10 +113,64 @@ class CertificateAdmin(admin.ModelAdmin):
     save_on_top = True
     prepopulated_fields = {"slug": ("name",)}
     list_display = [
-        '__unicode__', 'shares', 'returned', 'cash', 'refunded',
+        'name', 'shares', 'returned', 'cash', 'refunded',
         'principal', 'forgiven', 'granted', 'exercised', 'cancelled']
     ordering = ['name']
     list_filter = ['security__security_type']
+    fieldsets = [
+        (None, {
+            'fields': ['name', 'slug', 'date', 'security', 'shareholder',],
+            'description': "Each certificate represents the actual\
+                ownership of the underlying security, and is usually represented\
+                by an actual stock certificate, promissory note, or other\
+                documentation.  Enter the main information on the certificate\
+                here, any details below depending on the class of the\
+                security, and vesting details (if relevant.)  Be sure\
+                to enter the investor and shareholder(s) before entering\
+                the certificate itself."
+            }
+        ),
+        ('Stock', {
+            'fields': [('shares', 'returned',), ('cash', 'refunded',),
+                'is_prorata', ],
+            'classes':['collapse'],
+            'description': "Enter details related to preferred and common\
+                stock here."
+            }
+        ),
+        ('Debt', {
+            'fields': ['principal', 'forgiven'],
+            'classes':['collapse'],
+            'description': "Enter details related to convertible debt\
+                instruments here."
+            }
+        ),
+        ('Rights', {
+            'fields': ['granted', 'exercised', 'cancelled',
+                'is_approved'],
+            'classes':['collapse'],
+            'description': "Enter details related to stock option and\
+                warrant grants here."
+            }
+        ),
+        ('Vesting', {
+            'fields': [('vesting_start', 'vesting_stop',), ('vesting_term',
+                'vesting_cliff',), ('vesting_immediate', 'vested_direct',),
+                'vesting_trigger'],
+            'classes':['collapse'],
+            'description': "Common stock and options typically vest\
+                over a period of time as long as the recipient is employed\
+                or engaged by the company.  This tracks that vesting on \
+                a per-certificate basis."
+            }
+        ),
+        ('Notes', {
+            'fields': ['notes'],
+            'classes':['collapse'],
+            'description': "Any notes you wish to attach to the certificate"
+            }
+        ),
+    ]
 
 admin.site.register(Security, SecurityAdmin)
 admin.site.register(Investor, InvestorAdmin)

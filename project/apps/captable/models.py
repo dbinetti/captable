@@ -386,31 +386,56 @@ class Certificate(models.Model):
     name = models.CharField(max_length=200, help_text="""
         This is a unique name/serial number for the certificate.""")
     slug = models.SlugField(unique=True, help_text="""
-        The slug is automatically generated.""")
-    date = models.DateField(blank=True, null=True)
-    # status = models.IntegerField(blank=True, null=True, choices=STATUS_CHOICES, default=STATUS_OUTSTANDING)
-
+        The slug forms the URL at which this certificate may be accessed.
+        It is automatically generated, but can be overwritten heres.""")
+    date = models.DateField(default=datetime.date.today, help_text="""
+        The date when the certificate was issued.""")
     shares = models.FloatField(default=0, help_text="""
         The shares of the transction, as expressed by the
-        number of shares purchased.""")
-    returned = models.FloatField(default=0)
+        number of shares issued.""")
+    returned = models.FloatField(default=0, help_text="""
+        Shares can be repurchased (usually due to unvested portions
+        being returned due to termination, etc.).  Enter any repurchased
+        shares here, and include any corresponding refunds to the shareholder
+        in the refunded box below""")
     cash = models.FloatField(default=0, help_text="""
         The cash paid for the transaction.  This will reflect the
-        total purchase price for the shares, or the amount of debt issued.""")
-    refunded = models.FloatField(default=0)
-    principal = models.FloatField(default=0, help_text="""
-        Debt """)
-    forgiven = models.FloatField(default=0, help_text="""
-        Forgiven principal.  Should equal cash in conversion.""")
-    granted = models.FloatField(default=0, help_text="""
-        The total amount of the original option/warrant grant.""")
-    exercised = models.FloatField(default=0)
-    cancelled = models.FloatField(default=0)
+        total purchase price for the shares.""")
+    refunded = models.FloatField(default=0, help_text="""
+        Enter any refunded amounts related to a repurchase here.""")
+    is_prorata = models.BooleanField(default=False, help_text="""
+        Preferred investors are often granted rights to purchase into a
+        subsequent investment round according to their current rata position.
+        If this investor (through the certificate) chooses to exercise
+        prorata rights enter that here; the data will be used to make the
+        appropriate calculations in the financing worksheets.""")
 
+    principal = models.FloatField(default=0, help_text="""
+        The original amount of debt issued (meaning, the actual
+        cash amount, not any interest/accrued value.) """)
+    forgiven = models.FloatField(default=0, help_text="""
+        We do not want to lose information about any original debt instrument,
+        so enter any forgiven/repaid principal here.  (Example: if the
+        convertible converts, enter in the entire principal amount here
+        to reflect that the loan has fully converted and there is no
+        remaning debt obligation.""")
+
+    granted = models.FloatField(default=0, help_text="""
+        Enter the total number of options/warrants granted here.""")
+    exercised = models.FloatField(default=0, help_text="""
+        Options and warrants can be exercised in whole or in parts, either
+        as they vest or due to early exercise.  Enter the exercised portion
+        here.  (You may also wish to enter notes about each exercise in the
+        notes field below.  I'm considering a feature where this can be tracked
+        automatically, but currently that is not the case.""")
+    cancelled = models.FloatField(default=0, help_text="""
+        The unexercised/unvested portions of options and warrants can be
+        cancelled/returned to the company.  Enter that number here.  The sum
+        of the cancelled and exercised portion should not exceed the total
+        amount granted.""")
     notes = models.TextField(blank=True, help_text="""
         Additional notes about the certificate.""")
 
-    is_prorata = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False, help_text="""
         Grant transaction which has been approved by the board.  Options are
         often promised before they are officially granted; this boolean allows
@@ -434,13 +459,12 @@ class Certificate(models.Model):
         If the vesting schedule is ad-hoc, enter vested shares here and set term to 0""")
     vesting_trigger = models.IntegerField(blank=True, null=True, choices=TRIGGER_CHOICES, help_text="""
         The trigger describes any accelerated vesting on change of control.""")
-    expiration_date = models.DateField(blank=True, null=True, help_text="""
-        The date on which the grant expires.""")
-    converted_date = models.DateField(blank=True, null=True, help_text="""
-        The date the certificate converted.""")
 
-    security = models.ForeignKey(Security)
-    shareholder = models.ForeignKey(Shareholder)
+    security = models.ForeignKey(Security, help_text="""
+        The underlying security of the certificate.""")
+    shareholder = models.ForeignKey(Shareholder, help_text="""
+        The legal owner of the certificate.  Enter a new shareholder from
+        the Investor form before entering the certificate.""")
 
     objects = PassThroughManager.for_queryset_class(CertificateQuerySet)()
 
