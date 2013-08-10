@@ -174,6 +174,8 @@ class MainTests(TestCase):
     def test_vested(self):
         self.assertEqual(self.certificateCS01.vested, 3500000)
 
+    def test_outstanding(self):
+        self.assertEqual(self.investor_common1.outstanding, 3500000)
 
 
 
