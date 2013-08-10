@@ -21,7 +21,7 @@ STATIC_S3_PATH = "static"
 INSTALLED_APPS += (
     'storages',
     's3_folder_storage',
-    # 'raven.contrib.django.raven_compat',
+    'raven.contrib.django.raven_compat',
 )
 
 MEDIA_ROOT = "/{0}/".format(DEFAULT_S3_PATH)
@@ -33,7 +33,7 @@ ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
 ALLOWED_HOSTS = [get_env_variable("HEROKU_HOST")]
 
-# RAVEN_CONFIG = {
-#     'dsn': 'https://1c947653a03f40fdaff079078a8b7f8f:f0499a280d924910959a850a165c3a67@app.getsentry.com/10264',
-# }
+RAVEN_CONFIG = {
+    'dsn': 'https://a16d1dadc8b34ed0ac7d70e5abbdc931:f807666c30b641e8b8a8084b96c8062a@app.getsentry.com/11747',
+}
 
