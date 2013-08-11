@@ -167,12 +167,20 @@ class MainTests(TestCase):
         )
 
 
+
     def test_preference(self):
         self.assertEqual(self.common.pre, 7000)
 
 
     def test_vested(self):
         self.assertEqual(self.certificateCS01.vested, 3500000)
+
+
+# Investor Class
+
+    def proceeds(self):
+        self.assertEqual(self.investor_common1())
+        self.assertEqual(self.investor_seriesA1.proceeds(10000000), ())
 
     def test_outstanding(self):
         self.assertEqual(self.investor_common1.outstanding, 3500000)

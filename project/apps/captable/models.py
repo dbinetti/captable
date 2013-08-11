@@ -413,6 +413,10 @@ class Certificate(models.Model):
         convertible converts, enter in the entire principal amount here
         to reflect that the loan has fully converted and there is no
         remaning debt obligation.""")
+    converted_date = models.DateField(blank=True, null=True, help_text="""
+        This is the date the security converted.  It is used in the
+        financing worksheet to determine the total shares created in
+        a conversion event.""")
 
     granted = models.FloatField(default=0, help_text="""
         Enter the total number of options/warrants granted here.""")

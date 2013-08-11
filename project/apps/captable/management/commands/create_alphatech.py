@@ -18,6 +18,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+# Securities and Additions
         self.common = CommonSecurity(
             name="Common Stock",
             pre=7000,
@@ -25,13 +26,13 @@ class Command(BaseCommand):
             date=five_years_ago
         )
 
-        self.expansion_common = AdditionFactory(
+        self.common_addition = AdditionFactory(
             authorized=10000000,
             security=self.common,
             date=five_years_ago,
         )
 
-        self.seriesA = PreferredSecurity(
+        self.series_a = PreferredSecurity(
             name="Series A",
             price_per_share=.625,
             seniority=2,
@@ -39,13 +40,13 @@ class Command(BaseCommand):
             date=two_years_ago
         )
 
-        self.expansion_seriesA = AdditionFactory(
+        self.series_a_addition = AdditionFactory(
             authorized=10000000,
-            security=self.seriesA,
+            security=self.series_a,
             date=two_years_ago,
         )
 
-        self.seriesB = PreferredSecurity(
+        self.series_b = PreferredSecurity(
             name="Series B",
             price_per_share=1.72414,
             seniority=3,
@@ -53,78 +54,121 @@ class Command(BaseCommand):
             date=one_year_ago
         )
 
-        self.expansion_seriesB = AdditionFactory(
+        self.series_b_addition = AdditionFactory(
             authorized=10000000,
-            security=self.seriesB,
+            security=self.series_b,
             date=one_year_ago,
         )
 
-        self.options = OptionSecurity(
+        self.option_plan = OptionSecurity(
             name="Option Plan",
             price_per_share=.10,
             date=five_years_ago,
         )
 
-        self.expansion1 = AdditionFactory(
+        self.option_addition1 = AdditionFactory(
             authorized=1000000,
-            security=self.options,
+            security=self.option_plan,
             date=five_years_ago,
         )
 
-        self.expansion2 = AdditionFactory(
+        self.option_addition2 = AdditionFactory(
             authorized=1900000,
-            security=self.options,
-            date=one_year_ago
+            security=self.option_plan,
+            date=one_year_ago,
         )
 
-        self.investor_common1 = InvestorFactory(
-            name="Joe Founder"
+        self.convertible = ConvertibleSecurity(
+            name="Convertible A",
+            date=one_year_ago,
+            liquidation_preference=1.0,
+            price_per_share=1.72414,
+            price_cap=20000000,
+            discount_rate=.2,
+            interest_rate=.1,
+            seniority=3,
         )
 
-        self.investor_common2 = InvestorFactory(
+        self.warrant = WarrantSecurity(
+            name="Series A Warrant",
+            date=two_years_ago,
+            price_per_share=.1,
+            seniority=2,
+            pre=5000000,
+            liquidation_preference=1.0,
+            conversion_ratio=1.0,
+        )
+
+# Investors
+        self.investor1 = InvestorFactory(
+            name="Joe Founder",
+        )
+
+        self.investor2 = InvestorFactory(
             name="Jane Founder"
         )
 
-        self.investor_seriesA1 = InvestorFactory(
+        self.investor3 = InvestorFactory(
             name="Venture Partners"
         )
 
-        self.investor_seriesB1 = InvestorFactory(
+        self.investor4 = InvestorFactory(
             name="Second Round Partners"
         )
 
-        self.investor_option1 = InvestorFactory(
+        self.investor5 = InvestorFactory(
             name="Bill Furst"
         )
 
-        self.shareholder_common1 = ShareholderFactory(
+        self.investor6 = InvestorFactory(
+            name="Odin Capital"
+        )
+
+        self.investor7 = InvestorFactory(
+            name="Eric Baker"
+        )
+
+# Shareholders
+        self.shareholder1a = ShareholderFactory(
             name="Joe Founder",
-            investor=self.investor_common1
+            investor=self.investor1,
         )
 
-        self.shareholder_common2 = ShareholderFactory(
+        self.shareholder2a = ShareholderFactory(
             name="Jane Founder",
-            investor=self.investor_common2
+            investor=self.investor2,
         )
 
-        self.shareholder_seriesA1 = ShareholderFactory(
+        self.shareholder3a = ShareholderFactory(
             name="VP Fund III",
-            investor=self.investor_seriesA1
+            investor=self.investor3,
         )
 
-        self.shareholder_seriesB1 = ShareholderFactory(
+        self.shareholder4a = ShareholderFactory(
             name="SR Fund IV",
-            investor=self.investor_seriesB1
+            investor=self.investor4,
         )
 
-        self.shareholder_option1 = ShareholderFactory(
+        self.shareholder5a = ShareholderFactory(
             name="Bill Furst Family Trust",
-            investor=self.investor_option1,
+            investor=self.investor5,
         )
 
+        self.shareholder6a = ShareholderFactory(
+            name="Odin Fund 2013",
+            investor=self.investor6,
+        )
+
+        self.shareholder7a = ShareholderFactory(
+            name="Eric Baker",
+            investor=self.investor7,
+        )
+
+
+# Certificates
         self.certificateCS01 = CertificateFactory(
             security=self.common,
-            shareholder=self.shareholder_common1,
+            shareholder=self.shareholder1a,
             shares=3500000,
             cash=3500,
             date=five_years_ago,
@@ -133,7 +177,7 @@ class Command(BaseCommand):
 
         self.certificateCS02 = CertificateFactory(
             security=self.common,
-            shareholder=self.shareholder_common2,
+            shareholder=self.shareholder2a,
             shares=3500000,
             cash=3500,
             date=five_years_ago,
@@ -141,8 +185,8 @@ class Command(BaseCommand):
         )
 
         self.certificatePA01 = CertificateFactory(
-            security=self.seriesA,
-            shareholder=self.shareholder_seriesA1,
+            security=self.series_a,
+            shareholder=self.shareholder3a,
             shares=1600000,
             cash=1000000,
             is_prorata=True,
@@ -150,19 +194,36 @@ class Command(BaseCommand):
         )
 
         self.certificatePB01 = CertificateFactory(
-            security=self.seriesB,
-            shareholder=self.shareholder_seriesB1,
+            security=self.series_b,
+            shareholder=self.shareholder4a,
             shares=2900000,
             cash=5000000,
             date=one_year_ago,
         )
 
         self.certificateOP01 = CertificateFactory(
-            security=self.options,
-            shareholder=self.shareholder_option1,
+            security=self.option_plan,
+            shareholder=self.shareholder5a,
             granted=100000,
             date=two_years_ago,
             vesting_start=two_years_ago
         )
+
+        self.certificateCD01 = CertificateFactory(
+            security=self.convertible,
+            shareholder=self.shareholder6a,
+            principal=1000000,
+            date=one_year_ago,
+            )
+
+        self.certificateWA01 = CertificateFactory(
+            security=self.warrant,
+            shareholder=self.shareholder7a,
+            granted=10000,
+            date=two_years_ago,
+            vesting_immediate=1,
+
+        )
+
 
         self.stdout.write("Successfully created Alpha Tech")
