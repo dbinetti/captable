@@ -15,6 +15,10 @@ Contents:
 .. include:: ../README.rst
 
 
+
+.. for docs - outstanding real, converted vested, diluted fully vested
+
+
 Indices and tables
 ==================
 

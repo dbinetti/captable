@@ -1,6 +1,7 @@
 from __future__ import division
 
 import datetime
+from dateutil.relativedelta import relativedelta
 
 from django.db import models
 from django.db.models import Sum, Max
@@ -449,11 +450,16 @@ class Certificate(models.Model):
     vesting_cliff = models.FloatField(blank=True, null=True, help_text="""
         The duration of the vesting 'cliff', in months.  Cliff refers to the
         initial period of time before any shares are vested. Typically 1 year.""")
-    vesting_immediate = models.FloatField(blank=True, null=True, help_text="""
+    vesting_immediate = models.FloatField(default=0, help_text="""
         The percentage of the transaction which has immediately vested
         on the closing of the transaction itself.""")
     vested_direct = models.FloatField(blank=True, null=True, help_text="""
-        If the vesting schedule is ad-hoc, enter vested shares here and set term to 0""")
+        If the vesting schedule is ad-hoc, enter the vested shares here
+        and include detail in the notes.  If anything is entered here it
+        will supercede any other vesting-related entries.""")
+    vesting_notes = models.TextField(blank=True, help_text="""
+        Notes related to vesting, including any ad-hoc vesting as indicated
+        in the vested_direct field.""")
     vesting_trigger = models.IntegerField(blank=True, null=True, choices=TRIGGER_CHOICES, help_text="""
         The trigger describes any accelerated vesting on change of control.""")
 
@@ -500,112 +506,84 @@ class Certificate(models.Model):
         than the number of shares converted in a financing.
         """
 
+        # First, directly address the conditions where vesting
+        # is irrelevant
+
         # Preferred stock doesn't vest, as it is used by investors.
         if self.security.security_type == SECURITY_TYPE_PREFERRED:
             return self.outstanding
 
         # Convertibles don't vest, but they do convert at the default price
-        elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE:
+        # Thus vested represents what outstanding shares would be in play
+        # TODO Consider whether this should be zero.
+        if self.security.security_type == SECURITY_TYPE_CONVERTIBLE:
             return self.outstanding / self.security.price_per_share
 
+        # TODO check and see where I might be considering warrants vested
+
+        # vested_direct allows for ad-hoc vesting.  If that is the
+        # case then enter that number and skip the rest.
+        if self.vested_direct:
+            return vested_direct
+
+        # A "Single Trigger" is a provision in an agreement which
+        # stipulates that all securities immediately vest in full
+        # upon a change of control.  It is rare to grant single-
+        # tiggers; a double-trigger is more common for founders/key
+        # executives.  Normal employees generally don't get trigger
+        # provisions at all.
+        if self.vesting_trigger == TRIGGER_SINGLE:
+            return self.outstanding
+
+
+        # All that remains at this point are common stock, options
+        # and warrants which follow standard vesting.
+        stake = self.outstanding
+
+        # Calculate the immediately vested portion.  Sometimes
+        # founders receive a year vesting immediately as a
+        # expression of "time served."  This also can be an
+        # inducement for a key hire/advisor, etc.
+        # If there is no immediate vesting it will have no
+        # impact on the equation.
+        immediate = stake * self.vesting_immediate
+        residual = stake - immediate
+
+        # For the remaining, non-immediately vested portion,
+        # calculate the number of months vesting
+        months_vesting_period = self.vesting_term
+
+        # If the vesting was halted due to termination, etc.,
+        # use that date for the ending period.  Otherwise,
+        # use today to calculate the total vesting period.
+        if self.vesting_stop:
+            vesting_stop = self.vesting_stop
         else:
-            # Rights and shares are essentially equivalent in the vested
-            # context; this simply assigns them for convenience.
-            if self.security.security_type == SECURITY_TYPE_COMMON:
-                stake = self.outstanding
-            elif self.security.security_type == SECURITY_TYPE_WARRANT:
-                stake = self.outstanding
-            else:
-                stake = self.outstanding
+            vesting_stop = datetime.date.today()
 
-            # A "Single Trigger" is a provision in an agreement which
-            # stipulates that all securities immediately vest in full
-            # upon a change of control.  It is rare to grant single-
-            # tiggers; a double-trigger is more common for founders/key
-            # executives.  Normal employees generally don't get trigger
-            # provisions at all.
-            if self.vesting_trigger == TRIGGER_SINGLE:
-                return stake
-            else:
-                return stake
+        # Now calculate the total number of months vested from
+        # the start and the stop dates, in months.
+        rd = relativedelta(vesting_stop, self.vesting_start)
+        months_vested = rd.years * 12 + rd.months
 
-                # # TODO Need a way to handle ad-hoc vesting gracefully
-                # if self.vesting_term:
-                #     # Calculate the immediately vested portion.  Sometimes
-                #     # founders receive a year vesting immediately as a
-                #     # expression of "time served."  This also can be an
-                #     # inducement for a key hire/advisor, etc.
-                #     immediate = stake * self.vesting_immediate
-                #     residual = stake - immediate
+        # Many grants will have a "cliff", meaning an initial
+        # period before any grants will vest.  Determine the
+        # cliff in terms of months.
+        months_cliff = self.vesting_cliff
 
-                #     # For the remaining, non-immediately vested portion,
-                #     # calculate the number of months vesting
-                #     months_vesting_period = self.vesting_term
-
-                #     # If the vesting was halted due to termination, etc.,
-                #     # use that date for the ending period.  Otherwise,
-                #     # use today to calculate the total vesting period.
-                #     if self.vesting_stop:
-                #         vesting_stop = self.vesting_stop
-                #     else:
-                #         vesting_stop = datetime.date.today()
-
-                #     # Now calculate the total number of months vested from
-                #     # the start and the stop dates, in months.
-                #     rd = relativedelta(vesting_stop, self.vesting_start)
-                #     months_vested = rd.years * 12 + rd.months
-
-                #     # Many grants will have a "cliff", meaning an initial
-                #     # period before any grants will vest.  Determine the
-                #     # cliff in terms of months.
-                #     months_cliff = self.vesting_cliff
-
-                #     # Grants are fully vested if all time has passed.
-                #     if months_vested > months_vesting_period:
-                #         residual_vested = residual
-                #     # And nothing has vested if within the cliff
-                #     elif months_vested < months_cliff:
-                #         residual_vested = 0
-                #     # Finally, calculate the rata portion of what ever
-                #     # didn't immediately vest according to the amount of
-                #     # time passed.
-                #     else:
-                #         monthly_vested = residual / months_vesting_period
-                #         residual_vested = monthly_vested * months_vested
-                #     return immediate + residual_vested
-                # else:
-                #     return self.vested_direct
-
-    @property
-    def outstanding_shares(self):
-        """Defines current numbers"""
-        if self.security.security_type in [
-                SECURITY_TYPE_COMMON,
-                SECURITY_TYPE_PREFERRED]:
-            return self.shares - self.returned
+        # Grants are fully vested if all time has passed.
+        if months_vested > months_vesting_period:
+            residual_vested = residual
+        # And nothing has vested if within the cliff
+        elif months_vested < months_cliff:
+            residual_vested = 0
+        # Finally, calculate the rata portion of whatever
+        # didn't immediately vest according to the amount of
+        # time passed.
         else:
-            return 0
-
-    @property
-    def outstanding_warrants(self):
-        if self.security.security_type in [SECURITY_TYPE_WARRANT]:
-            return self.granted - self.cancelled - self.exercised
-        else:
-            return 0
-
-    @property
-    def outstanding_options(self):
-        if self.security.security_type in [SECURITY_TYPE_OPTION]:
-            return self.granted - self.cancelled - self.exercised
-        else:
-            return 0
-
-    # @property
-    # def outstanding_debt(self):
-    #     if self.security.security_type in [SECURITY_TYPE_CONVERTIBLE]:
-    #         return self.accrued - self.forgiven
-    #     else:
-    #         return 0
+            monthly_vested = residual / months_vesting_period
+            residual_vested = monthly_vested * months_vested
+        return immediate + residual_vested
 
     @property
     def outstanding(self):
@@ -651,7 +629,7 @@ class Certificate(models.Model):
         """
         # Preferred stock converts into a multiple of common stock.
         if self.security.security_type == SECURITY_TYPE_PREFERRED:
-            return self.outstanding_shares * self.security.conversion_ratio
+            return self.outstanding * self.security.conversion_ratio
 
         # The as-converted number assumes the default price,
         # so use the ``exchanged`` function
@@ -670,7 +648,7 @@ class Certificate(models.Model):
         # All that remains is common stock, which
         # by definition requires no conversion.
         else:
-            return self.outstanding_shares
+            return self.outstanding
 
     @property
     def diluted(self):
@@ -684,7 +662,7 @@ class Certificate(models.Model):
         """
         # Preferred stock converts into a multiple of common stock.
         if self.security.security_type == SECURITY_TYPE_PREFERRED:
-            return self.outstanding_shares * self.security.conversion_ratio
+            return self.outstanding * self.security.conversion_ratio
 
         # The as-converted number assumes the default price,
         # so use the ``exchanged`` function
@@ -702,7 +680,7 @@ class Certificate(models.Model):
         # All that remains is common stock, which
         # by definition requires no conversion.
         else:
-            return self.outstanding_shares
+            return self.outstanding
 
     @property
     def liquidated(self):
@@ -752,7 +730,7 @@ class Certificate(models.Model):
         # http://www.startupcompanylawyer.com/category/convertible-note-bridge-financing/
         if self.security.security_type == SECURITY_TYPE_PREFERRED:
             return (
-                self.outstanding_shares
+                self.outstanding
                 * self.security.price_per_share
                 * self.security.liquidation_preference)
         elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE:
@@ -765,6 +743,8 @@ class Certificate(models.Model):
                 # the loan itself due and payable (with interest.)
             except:
                 return self.accrued
+        else:
+            return 0
 
     @property
     def accrued(self):
