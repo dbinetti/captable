@@ -517,7 +517,7 @@ class Certificate(models.Model):
         # Thus vested represents what outstanding shares would be in play
         # TODO Consider whether this should be zero.
         if self.security.security_type == SECURITY_TYPE_CONVERTIBLE:
-            return self.outstanding / self.security.price_per_share
+            return self.exchanged()
 
         # TODO check and see where I might be considering warrants vested
 
@@ -702,15 +702,6 @@ class Certificate(models.Model):
         else:
             return self.vested
 
-    def discounted_price(self, pre_valuation=None, price=None):
-        if self.security.security_type in [SECURITY_TYPE_PREFERRED,
-            SECURITY_TYPE_COMMON] and self.cash and self.shares:
-            return self.cash / self.shares
-        elif self.security.security_type == SECURITY_TYPE_CONVERTIBLE and self.outstanding:
-            return self.outstanding / self.exchanged(pre_valuation, price)
-        else:
-            return 0
-
     @property
     def preference(self):
         """Calculate the total preference of the transaction.
@@ -879,8 +870,4 @@ class Certificate(models.Model):
         Calculates the proceeds from a transaction given a particular purchase
         price.
         """
-        if self.liquidated:  # Return the proceeds: vested shares times price.
-            return self.liquidated * share_price(purchase_price)[self.security.seniority]
-        else:
-            return 0
-
+        return self.liquidated * share_price(purchase_price)[self.security.seniority]
