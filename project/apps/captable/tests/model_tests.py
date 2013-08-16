@@ -254,6 +254,7 @@ class MainTests(TestCase):
         # self.assertEqual(self.investor6.outstanding, 3500000)
         # self.assertEqual(self.investor7.outstanding, 3500000)
 
+
 # Security Class
     def test_security_get_absolute_url(self):
         self.assertEqual(self.common.get_absolute_url(), '/security/common-stock/')
@@ -325,24 +326,6 @@ class MainTests(TestCase):
         self.assertEqual(round(self.convertible.diluted_rata, 4), .0421)
         self.assertEqual(round(self.warrant.diluted_rata, 4), .0007)
 
-    # @property
-    # def diluted(self):
-    #     if self.security_type == SECURITY_TYPE_OPTION:
-    #         return Addition.objects.select_related().filter(
-    #             security=self).aggregate(t=Sum('authorized'))['t']
-    #     else:
-    #         return Certificate.objects.select_related().filter(
-    #             security=self).diluted
-
-    # @property
-    # def diluted_rata(self):
-    #     diluted = self.diluted
-    #     certs = Certificate.objects.select_related().diluted
-    #     avail = Addition.objects.select_related().filter(
-    #         security__security_type=SECURITY_TYPE_OPTION).aggregate(
-    #             t=Sum('authorized'))['t']
-    #     total = sum(filter(None, [certs, avail]))
-    #     return diluted / total
 
 # Addition Class
     def test_addition_unicode(self):

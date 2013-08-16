@@ -124,9 +124,6 @@ class Shareholder(models.Model):
     name = models.CharField(max_length=200, help_text="""
         The legal name of the shareholder.  In the case of venture investment,
         this would be the formal, legal name of the fund.""")
-    slug = models.SlugField(unique=True, help_text="""
-        The slug is the slugified version of the investor name, is unique,
-        and is used in composing the URL for the investor.""")
     investor = models.ForeignKey(Investor, help_text="""
         Every shareholder must a parent Investor.""")
 
@@ -136,12 +133,6 @@ class Shareholder(models.Model):
     def __unicode__(self):
         return self.name
 
-    def save(self, *args, **kwargs):
-        self.slug = slugify(unicode(self.name))
-        super(Shareholder, self).save(*args, **kwargs)
-
-    def get_absolute_url(self):
-        return reverse('shareholder_detail', args=[str(self.slug)])
 
 
 class Security(models.Model):
