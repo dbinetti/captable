@@ -165,7 +165,7 @@ class Command(BaseCommand):
         )
 
 
-# Certificates
+# # Certificates
         self.certificate1 = CertificateFactory(
             security=self.common,
             shareholder=self.shareholder1,

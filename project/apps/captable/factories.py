@@ -24,10 +24,9 @@ class InvestorFactory(factory.DjangoModelFactory):
 
 class ShareholderFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Shareholder
-    FACTORY_DJANGO_GET_OR_CREATE = ('slug',)
+    FACTORY_DJANGO_GET_OR_CREATE = ('name',)
 
     name = factory.Sequence(lambda n: unicode('Test Shareholder {0}').format(n))
-    slug = factory.LazyAttribute(lambda a: slugify(unicode(a.name)))
     investor = factory.SubFactory(InvestorFactory)
 
 
