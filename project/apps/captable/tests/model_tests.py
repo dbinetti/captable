@@ -241,18 +241,82 @@ class MainTests(TestCase):
 
 
 # Investor Class
+    def test_investor_get_absolute_url(self):
+        self.assertEqual(self.investor1.get_absolute_url(), '/investor/joe-founder/')
+
+
     def test_investor_proceeds(self):
-        self.assertEqual(self.investor1.proceeds(1000000), 0)
-        # add all preference levels.
+        self.assertEqual(round(self.investor1.proceeds(10000000),2), 1439713.33)
+        self.assertEqual(round(self.investor2.proceeds(10000000),2), 1439713.33)
+        self.assertEqual(round(self.investor3.proceeds(10000000),2), 993788.82)
+        self.assertEqual(round(self.investor4.proceeds(10000000),2), 5000006)
+        self.assertEqual(round(self.investor5.proceeds(10000000),2), 20567.33)
+        self.assertEqual(round(self.investor6.proceeds(10000000),2), 1100000)
+        self.assertEqual(round(self.investor7.proceeds(10000000),2), 6211.18)
+
+    def test_investor_liquidated(self):
+        self.assertEqual(self.investor1.liquidated, 3500000)
+        self.assertEqual(self.investor2.liquidated, 3500000)
+        self.assertEqual(self.investor3.liquidated, 1600000)
+        self.assertEqual(self.investor4.liquidated, 2900000)
+        self.assertEqual(self.investor5.liquidated, 50000)
+        self.assertEqual(round(self.investor6.liquidated), 637999)
+        self.assertEqual(self.investor7.liquidated, 10000)
 
     def test_investor_outstanding(self):
         self.assertEqual(self.investor1.outstanding, 3500000)
-        # self.assertEqual(self.investor2.outstanding, 3500000)
-        # self.assertEqual(self.investor3.outstanding, 3500000)
-        # self.assertEqual(self.investor4.outstanding, 3500000)
-        # self.assertEqual(self.investor5.outstanding, 3500000)
-        # self.assertEqual(self.investor6.outstanding, 3500000)
-        # self.assertEqual(self.investor7.outstanding, 3500000)
+        self.assertEqual(self.investor2.outstanding, 3500000)
+        self.assertEqual(self.investor3.outstanding, 1600000)
+        self.assertEqual(self.investor4.outstanding, 2900000)
+        self.assertEqual(self.investor5.outstanding, 100000)
+        self.assertEqual(self.investor6.outstanding, 0)
+        self.assertEqual(self.investor7.outstanding, 10000)
+
+    def test_investor_paid(self):
+        self.assertEqual(self.investor1.paid, 3500)
+        self.assertEqual(self.investor2.paid, 3500)
+        self.assertEqual(self.investor3.paid, 1000000)
+        self.assertEqual(self.investor4.paid, 5000000)
+        self.assertEqual(self.investor5.paid, 0)
+        self.assertEqual(self.investor6.paid, 1000000)
+        self.assertEqual(self.investor7.paid, 0)
+
+    def test_investor_preference(self):
+        self.assertEqual(self.investor1.preference, 0)
+        self.assertEqual(self.investor2.preference, 0)
+        self.assertEqual(self.investor3.preference, 1000000)
+        self.assertEqual(self.investor4.preference, 5000006)
+        self.assertEqual(self.investor5.preference, 0)
+        self.assertEqual(self.investor6.preference, 1100000)
+        self.assertEqual(self.investor7.preference, 0)
+
+    def test_investor_proceeds_rata(self):
+        self.assertEqual(round(self.investor1.proceeds_rata(10000000),2), .1400)
+        self.assertEqual(round(self.investor2.proceeds_rata(10000000),2), .1400)
+        self.assertEqual(round(self.investor3.proceeds_rata(10000000),2), .1000)
+        self.assertEqual(round(self.investor4.proceeds_rata(10000000),2), .5000)
+        self.assertEqual(round(self.investor5.proceeds_rata(10000000),2), .0000)
+        self.assertEqual(round(self.investor6.proceeds_rata(10000000),2), .1100)
+        self.assertEqual(round(self.investor7.proceeds_rata(10000000),2), .0000)
+
+    def test_investor_prorata(self):
+        self.assertEqual(round(self.investor1.prorata(1000000)), 0)
+        self.assertEqual(round(self.investor2.prorata(1000000)), 0)
+        self.assertEqual(round(self.investor3.prorata(1000000)), 106326)
+        self.assertEqual(round(self.investor4.prorata(1000000)), 0)
+        self.assertEqual(round(self.investor5.prorata(1000000)), 0)
+        self.assertEqual(round(self.investor6.prorata(1000000)), 0)
+        self.assertEqual(round(self.investor7.prorata(1000000)), 0)
+
+    def test_investor_exchanged(self):
+        self.assertEqual(round(self.investor1.exchanged()), 0)
+        self.assertEqual(round(self.investor2.exchanged()), 0)
+        self.assertEqual(round(self.investor3.exchanged()), 0)
+        self.assertEqual(round(self.investor4.exchanged()), 0)
+        self.assertEqual(round(self.investor5.exchanged()), 0)
+        self.assertEqual(round(self.investor6.exchanged()), 637999)
+        self.assertEqual(round(self.investor7.exchanged()), 0)
+
 
 
 # Security Class
