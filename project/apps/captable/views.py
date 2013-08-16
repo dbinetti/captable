@@ -182,7 +182,7 @@ def financing_summary(request, new_money, pre_valuation, pool_rata):
         prorata_shares = i.prorata(new_money_shares)
         prorata_cash = prorata_shares * price
         converted_shares = i.exchanged(pre_valuation, price)
-        converted_cash = i.principal
+        converted_cash = 0
 
         new_shares = prorata_shares + converted_shares
         new_cash = prorata_cash

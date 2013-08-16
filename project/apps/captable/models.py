@@ -86,12 +86,6 @@ class Investor(models.Model):
         return sum(filter(None, [c.paid for c in certificates]))
 
     @property
-    def principal(self):
-        certificates = Certificate.objects.filter(
-            shareholder__investor=self)
-        return sum(filter(None, [c.principal for c in certificates]))
-
-    @property
     def preference(self):
         certificates = Certificate.objects.filter(
             shareholder__investor=self)
