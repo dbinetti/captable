@@ -285,23 +285,45 @@ class MainTests(TestCase):
         self.assertEqual(self.convertible.outstanding, 0)
         self.assertEqual(self.warrant.outstanding, 10000)
 
+    def test_security_outstanding_rata(self):
+        self.assertEqual(round(self.common.outstanding_rata, 4), .6029)
+        self.assertEqual(round(self.option_plan.outstanding_rata, 4), .0086)
+        self.assertEqual(round(self.series_a.outstanding_rata, 4), .1378)
+        self.assertEqual(round(self.series_b.outstanding_rata, 4), .2498)
+        self.assertEqual(round(self.convertible.outstanding_rata, 4), 0)
+        self.assertEqual(round(self.warrant.outstanding_rata, 4), .0009)
 
-    # @property
-    # def outstanding_rata(self):
-    #     outstanding = self.outstanding
-    #     total = Certificate.objects.select_related().outstanding
-    #     return outstanding / total
+    def test_security_converted(self):
+        self.assertEqual(self.common.converted, 7000000)
+        self.assertEqual(self.option_plan.converted, 0)
+        self.assertEqual(self.series_a.converted, 1600000)
+        self.assertEqual(self.series_b.converted, 2900000)
+        self.assertEqual(round(self.convertible.converted), 637999)
+        self.assertEqual(self.warrant.converted, 0)
 
-    # @property
-    # def converted(self):
-    #     return Certificate.objects.select_related().filter(
-    #         security=self).converted
+    def test_security_converted_rata(self):
+        self.assertEqual(round(self.common.converted_rata, 4), .5767)
+        self.assertEqual(round(self.option_plan.converted_rata, 4), .0)
+        self.assertEqual(round(self.series_a.converted_rata, 4), .1318)
+        self.assertEqual(round(self.series_b.converted_rata, 4), .2389)
+        self.assertEqual(round(self.convertible.converted_rata, 4), .0526)
+        self.assertEqual(round(self.warrant.converted_rata, 4), .0000)
 
-    # @property
-    # def converted_rata(self):
-    #     converted = self.converted
-    #     total = Certificate.objects.select_related().converted
-    #     return converted / total
+    def test_security_diluted(self):
+        self.assertEqual(self.common.diluted, 7000000)
+        self.assertEqual(self.option_plan.diluted, 2900000)
+        self.assertEqual(self.series_a.diluted, 1600000)
+        self.assertEqual(self.series_b.diluted, 2900000)
+        self.assertEqual(round(self.convertible.diluted), 637999)
+        self.assertEqual(self.warrant.diluted, 10000)
+
+    def test_security_diluted_rata(self):
+        self.assertEqual(round(self.common.diluted_rata, 4), .4621)
+        self.assertEqual(round(self.option_plan.diluted_rata, 4), .1914)
+        self.assertEqual(round(self.series_a.diluted_rata, 4), .1056)
+        self.assertEqual(round(self.series_b.diluted_rata, 4), .1914)
+        self.assertEqual(round(self.convertible.diluted_rata, 4), .0421)
+        self.assertEqual(round(self.warrant.diluted_rata, 4), .0007)
 
     # @property
     # def diluted(self):
