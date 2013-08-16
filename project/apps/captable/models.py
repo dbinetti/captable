@@ -101,7 +101,7 @@ class Investor(models.Model):
             shareholder__investor=self)
         return sum(filter(None, [c.prorata(new_shares) for c in certificates]))
 
-    def exchanged(self, pre_valuation, price):
+    def exchanged(self, pre_valuation=None, price=None):
         certificates = Certificate.objects.filter(
             shareholder__investor=self)
         return sum(filter(None, [c.exchanged(pre_valuation, price) for c in certificates]))
