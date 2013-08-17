@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load render_table from django_tables2 %}
+{% load captabletags %}
 
 {% block title %}
   <title>
@@ -9,7 +9,31 @@
 
 {% block content %}
   <div class='container'>
-    {% render_table table %}
+    <table class="table table-bordered table-hover table-summary">
+    <h3>Security List</h3>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Premoney</th>
+          <th>Seniority</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for security in securities %}
+          <tr>
+            <td><a href="{% url 'security_detail' security.slug %}">{{security.name}}</a></td>
+            <td>{{security.date}}</td>
+            <td>{{security.get_security_type_display}}</td>
+            <td>{{security.pre|mils}}</td>
+            <td>{{security.seniority}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+      </tfoot>
+    </table>
   </div><!--/container-->
 {% endblock content %}
 

@@ -115,6 +115,5 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.formtools',
     'south',
-    'django_tables2',
     'apps.captable',
 )

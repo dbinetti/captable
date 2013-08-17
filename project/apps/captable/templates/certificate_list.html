@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load render_table from django_tables2 %}
+{% load captabletags %}
 
 {% block title %}
   <title>
@@ -9,6 +9,33 @@
 
 {% block content %}
   <div class='container'>
-    {% render_table table %}
+    <table class="table table-bordered table-hover table-summary">
+    <h3>Certificate List</h3>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Security</th>
+          <th>Investor</th>
+          <th class='text-right'>Outstanding</th>
+          <th class='text-right'>Paid</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for certificate in certificates %}
+          <tr>
+            <td><a href="{% url 'certificate_detail' certificate.slug %}">{{certificate.name}}</a></td>
+            <td>{{certificate.date}}</td>
+            <td><a href="{% url 'security_detail' certificate.security.slug %}">{{certificate.security}}</a></td>
+            <td><a href="{% url 'investor_detail' certificate.shareholder.investor.slug %}">{{certificate.shareholder.investor}}</a></td>
+            <td class='text-right'>{{certificate.outstanding|shares}}</td>
+            <td class='text-right'>{{certificate.paid|currency}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+      </tfoot>
+    </table>
   </div><!--/container-->
 {% endblock content %}
+

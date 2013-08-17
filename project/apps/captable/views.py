@@ -40,25 +40,19 @@ from .constants import *
 def investor_list(request):
     """Renders the investor table"""
     investors = get_list_or_404(Investor.objects.order_by('name'))
-    table = InvestorTable(investors)
-    RequestConfig(request, paginate={"per_page": 25}).configure(table)
-    return render(request, "investor_list.html", {'table': table})
+    return render(request, "investor_list.html", {'investors': investors})
 
 
 # @login_required
 def security_list(request):
-    securities = get_list_or_404(Security.objects.order_by('security_type'))
-    table = SecurityTable(securities)
-    RequestConfig(request).configure(table)
-    return render(request, "security_list.html", {'table': table})
+    securities = get_list_or_404(Security.objects.order_by('date'))
+    return render(request, "security_list.html", {'securities': securities})
 
 
 # @login_required
 def certificate_list(request):
     certificates = get_list_or_404(Certificate.objects.order_by('name'))
-    table = CertificateTable(certificates)
-    RequestConfig(request).configure(table)
-    return render(request, "certificate_list.html", {'table': table})
+    return render(request, "certificate_list.html", {'certificates': certificates})
 
 
 # @login_required
