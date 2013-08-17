@@ -11,17 +11,6 @@ from django.db.models import (
     Sum,
 )
 
-from django_tables2 import RequestConfig
-
-from .tables import (
-    ShareholderTable,
-    CertificateTable,
-    InvestorTable,
-    SecurityTable,
-    LiquidationTable,
-    FinancingTable,
-)
-
 from .models import (
     Shareholder,
     Security,
