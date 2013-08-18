@@ -1,10 +1,17 @@
 
-
+========
 Captable
 ========
 
+.. image:: https://www.codeship.io/projects/66260e20-e34a-0130-caa5-5e7530cb92bf/status?branch=master
+    :target: https://www.codeship.io/projects/5788
+
+.. image:: https://coveralls.io/repos/dbinetti/captable/badge.png?branch=HEAD
+   :target: https://coveralls.io/r/dbinetti/captable
+
+
 Introduction
-------------
+============
 
 Captable is an application designed to manage capitalization tables.
 Typically cap tables are managed though spreadsheets written by attorneys;
@@ -28,12 +35,12 @@ frustrated by Excel and find code a better vehicle by which to run
 financial calculations.
 
 Documentation
--------------
+=============
 For more information, including features, installation, tutorial, etc.,
 see the documentation at http://captable.rtfd.org.
 
 Example
--------
+=======
 If you prefer to learn by example I have an instance of the app running
 at http://captable.herokuapp.com.  The username/password is 'admin/admin'.
 
