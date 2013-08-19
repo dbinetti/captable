@@ -43,4 +43,3 @@ Example
 =======
 If you prefer to learn by example I have an instance of the app running
 at http://captable.herokuapp.com.  The username/password is 'admin/admin'.
-
