@@ -1,6 +1,6 @@
 from .base import *
 
-DEBUG = bool(get_env_variable("DJANGO_DEBUG"))
+DEBUG = get_env_variable("DJANGO_DEBUG")
 TEMPLATE_DEBUG = DEBUG
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
@@ -10,13 +10,11 @@ AWS_ACCESS_KEY_ID = get_env_variable("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = get_env_variable("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = get_env_variable("AWS_STORAGE_BUCKET_NAME")
 
-
 DEFAULT_FILE_STORAGE = 's3_folder_storage.s3.DefaultStorage'
 STATICFILES_STORAGE = 's3_folder_storage.s3.StaticStorage'
 
 DEFAULT_S3_PATH = "media"
 STATIC_S3_PATH = "static"
-
 
 INSTALLED_APPS += (
     'storages',

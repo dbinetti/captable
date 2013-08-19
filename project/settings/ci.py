@@ -3,12 +3,9 @@ from .base import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-
 INSTALLED_APPS += (
     'django_nose',
-    'django_coverage',
 )
-
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 

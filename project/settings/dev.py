@@ -6,15 +6,13 @@ TEMPLATE_DEBUG = DEBUG
 
 INSTALLED_APPS += (
     'debug_toolbar',
-    'django_nose',
-    'django_coverage',
     'django_extensions',
+    'django_nose',
 )
 
 MIDDLEWARE_CLASSES += (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
-
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 

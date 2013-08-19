@@ -51,6 +51,7 @@ class AdditionFactory(factory.DjangoModelFactory):
 
 class CertificateFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Certificate
+    FACTORY_DJANGO_GET_OR_CREATE = ('slug',)
 
     name = factory.Sequence(lambda n: 'CERT-{0}'.format(n))
     slug = factory.LazyAttribute(lambda a: slugify(unicode(a.name)))
