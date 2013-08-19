@@ -16,8 +16,6 @@ before_script:
 - django-admin.py migrate --noinput
 script:
 - nosetests --with-coverage --cover-package=apps.captable
-after_script:
-- coveralls
 deploy:
   provider: heroku
   api_key:
@@ -25,3 +23,5 @@ deploy:
   app: captable
   on:
     repo: dbinetti/captable
+after_script:
+- coveralls
