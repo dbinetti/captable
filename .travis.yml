@@ -1,0 +1,26 @@
+language: python
+
+python:
+  - '2.7'
+
+env:
+  global:
+    - DJANGO_SETTINGS_MODULE=settings.ci
+    - PYTHONPATH=project
+    - DATABASE_URL=postgres://postgres:postgres@localhost/captable
+    - secure: "X9ZOUxFS0q2TmXBOuKLTFjiyLjZdt8z5g7TZmoUFKS+nCwV7HDOvl+3y534w7Sm/pI5NCM4uTQ2k4Z/Kr+A6KATYA3zCQUELFnLsCPGxL26p/w/peSyB+VGvICsL8MsFTL/z5iL5u5b0XI9kkrcIEV6Bs5S54L74jVvwC43jGbo=" # django secret key
+    - secure: "N6TSuv+GSEcAYRRMzWErHKyZdI3K7BldfkGYC9/RViyJ/HS0OR/lOcw9kN3MJ3bsCDuuR6LVZl2xjzeBynOOBJHnrUBMXNcrJN8A/q8Pj7cxVMqfP4SKGeo4w9299ucIgH70LJJFrhZ26e5zkHkilnblOHm1sZAsCnM2U8CLJzw=" # coveralls token
+
+install:
+  - pip install -r requirements/ci.txt
+
+before_script:
+  - psql -c 'create database captable;' -U postgres
+  - django-admin.py syncdb --noinput
+  - django-admin.py migrate --noinput
+
+script:
+  - nosetests --with-coverage --cover-package=apps.captable
+
+after_script:
+  - coveralls
