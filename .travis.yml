@@ -14,7 +14,7 @@ before_script:
 - django-admin.py syncdb --noinput
 - django-admin.py migrate --noinput
 script:
-- django-admin.py test --with-coverage
+- django-admin.py test --with-coverage --cover-package=apps.captable
 # deploy:
 #   provider: heroku
 #   api_key:
