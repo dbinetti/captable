@@ -18,6 +18,7 @@ script:
 deploy:
   provider: heroku
   buildpack: python
+  strategy: git
   api_key:
     secure: XjqYdvlHsGjXpHUPEc2k6dYXoluPVuqIh8Xmyne9m5GPuVI1JS3yIWUKpB/6LtAPkOjRWDS/BCKq+qVUZyqU7fixR2bgYC9ez9Hbhyvl/5UYglzpWqC7By/53mg2wluo3eMwrUdTe+tC3rVkE2bys+zRRn+2E4k7s2NZLrndLdU=
   skip_cleanup: true
