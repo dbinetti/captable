@@ -5,8 +5,5 @@ psycopg2==2.5.1
 python-dateutil==1.5
 South==0.8.1
 Unipath==1.0
-Sphinx==1.2b1
-ipython==0.13.2
 django-model-utils==1.4.0
 factory-boy==2.1.1
-pytz==2013b

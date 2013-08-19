@@ -5,3 +5,4 @@ django-storages==1.1.8
 gunicorn==17.5
 django-s3-folder-storage==0.1
 raven==3.4.1
+Sphinx==1.2b1
