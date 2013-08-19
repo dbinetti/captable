@@ -15,12 +15,12 @@ before_script:
 - django-admin.py migrate --noinput
 script:
 - django-admin.py test --with-coverage --cover-package=apps.captable
-# deploy:
-#   provider: heroku
-#   api_key:
-#     secure: XjqYdvlHsGjXpHUPEc2k6dYXoluPVuqIh8Xmyne9m5GPuVI1JS3yIWUKpB/6LtAPkOjRWDS/BCKq+qVUZyqU7fixR2bgYC9ez9Hbhyvl/5UYglzpWqC7By/53mg2wluo3eMwrUdTe+tC3rVkE2bys+zRRn+2E4k7s2NZLrndLdU=
-#   app: captable
-#   on:
-#     repo: dbinetti/captable
+deploy:
+  provider: heroku
+  api_key:
+    secure: XjqYdvlHsGjXpHUPEc2k6dYXoluPVuqIh8Xmyne9m5GPuVI1JS3yIWUKpB/6LtAPkOjRWDS/BCKq+qVUZyqU7fixR2bgYC9ez9Hbhyvl/5UYglzpWqC7By/53mg2wluo3eMwrUdTe+tC3rVkE2bys+zRRn+2E4k7s2NZLrndLdU=
+  app: captable
+  on:
+    repo: dbinetti/captable
 after_script:
 - coveralls
