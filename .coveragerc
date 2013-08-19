@@ -2,4 +2,4 @@
 omit =
     */site-packages/*
     */migrations/*
-source = apps.captable
+source = coveralls, apps.captable

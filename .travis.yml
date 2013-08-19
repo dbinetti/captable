@@ -7,7 +7,6 @@ env:
   - PYTHONPATH=project
   - DATABASE_URL=postgres://postgres:postgres@localhost/captable
   - SECRET_KEY=testingsonotsosecret
-  - secure: "m+1r2uRoV0VXypaTo59Mr+9P8FuUnOqmzAy8EGlsI1k6+aX9fD/X95kfKlQCs1/lMiMa0niQNb7exSkOOg5QGU6M2FqOAXpIsq6pZ2EB44CKnVZmFNs7+9Tjk3xHznocaCBcaIKsqwOGwnvJwDsB4Mtdsy5MNcWt0YOlKc3AWmk="
 install:
 - pip install -r requirements/ci.txt
 before_script:
@@ -15,13 +14,13 @@ before_script:
 - django-admin.py syncdb --noinput
 - django-admin.py migrate --noinput
 script:
-- django-admin.py test --with-coverage --cover-package=apps.captable
-deploy:
-  provider: heroku
-  api_key:
-    secure: XjqYdvlHsGjXpHUPEc2k6dYXoluPVuqIh8Xmyne9m5GPuVI1JS3yIWUKpB/6LtAPkOjRWDS/BCKq+qVUZyqU7fixR2bgYC9ez9Hbhyvl/5UYglzpWqC7By/53mg2wluo3eMwrUdTe+tC3rVkE2bys+zRRn+2E4k7s2NZLrndLdU=
-  app: captable
-  on:
-    repo: dbinetti/captable
+- django-admin.py test --with-coverage
+# deploy:
+#   provider: heroku
+#   api_key:
+#     secure: XjqYdvlHsGjXpHUPEc2k6dYXoluPVuqIh8Xmyne9m5GPuVI1JS3yIWUKpB/6LtAPkOjRWDS/BCKq+qVUZyqU7fixR2bgYC9ez9Hbhyvl/5UYglzpWqC7By/53mg2wluo3eMwrUdTe+tC3rVkE2bys+zRRn+2E4k7s2NZLrndLdU=
+#   app: captable
+#   on:
+#     repo: dbinetti/captable
 after_script:
 - coveralls
