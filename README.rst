@@ -3,11 +3,11 @@
 Captable
 ========
 
-.. image:: https://www.codeship.io/projects/66260e20-e34a-0130-caa5-5e7530cb92bf/status?branch=master
-    :target: https://www.codeship.io/projects/5788
+.. image:: https://travis-ci.org/dbinetti/captable.png
+    :target: https://travis-ci.org/dbinetti/captable
 
-.. image:: https://coveralls.io/repos/dbinetti/captable/badge.png?branch=HEAD
-   :target: https://coveralls.io/r/dbinetti/captable
+.. image:: https://coveralls.io/repos/dbinetti/captable/badge.png?branch=master
+    :target: https://coveralls.io/r/dbinetti/captable
 
 
 Introduction
