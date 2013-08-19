@@ -7,7 +7,7 @@ env:
   - PYTHONPATH=project
   - DATABASE_URL=postgres://postgres:postgres@localhost/captable
   - SECRET_KEY=testingsonotsosecret
-  - secure: N6TSuv+GSEcAYRRMzWErHKyZdI3K7BldfkGYC9/RViyJ/HS0OR/lOcw9kN3MJ3bsCDuuR6LVZl2xjzeBynOOBJHnrUBMXNcrJN8A/q8Pj7cxVMqfP4SKGeo4w9299ucIgH70LJJFrhZ26e5zkHkilnblOHm1sZAsCnM2U8CLJzw= # coveralls
+  - secure: "m+1r2uRoV0VXypaTo59Mr+9P8FuUnOqmzAy8EGlsI1k6+aX9fD/X95kfKlQCs1/lMiMa0niQNb7exSkOOg5QGU6M2FqOAXpIsq6pZ2EB44CKnVZmFNs7+9Tjk3xHznocaCBcaIKsqwOGwnvJwDsB4Mtdsy5MNcWt0YOlKc3AWmk="
 install:
 - pip install -r requirements/ci.txt
 before_script:
