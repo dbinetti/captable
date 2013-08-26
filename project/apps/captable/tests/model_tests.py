@@ -1,6 +1,7 @@
 from __future__ import division
 
 from django.test import TestCase
+from django.test.client import Client
 
 from apps.captable.factories import *
 
@@ -239,6 +240,8 @@ class MainTests(TestCase):
             vesting_immediate=1,
         )
 
+# view client
+        self.client = Client()
 
 # Investor Class
     def test_investor_get_absolute_url(self):
@@ -509,3 +512,56 @@ class MainTests(TestCase):
         self.assertEqual(round(self.certificate6.proceeds(25000000),2),1307589.92)
         self.assertEqual(round(self.certificate7.proceeds(25000000),2),20495.16)
 
+    def test_view_home(self):
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_investors(self):
+        response = self.client.get('/investor/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['investors']),7)
+
+    def test_securities(self):
+        response = self.client.get('/security/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['securities']),6)
+
+    def test_certificates(self):
+        response = self.client.get('/certificate/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['certificates']),7)
+
+    def test_investor(self):
+        response = self.client.get('/investor/joe-founder/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['investor'].name, "Joe Founder")
+
+    def test_security(self):
+        response = self.client.get('/security/common-stock/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['security'].name, "Common Stock")
+
+    def test_certificate(self):
+        response = self.client.get('/certificate/certificate1/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['certificate'].name, "certificate1")
+
+    def test_summary(self):
+        response = self.client.get('/summary/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_financing_instructions(self):
+        response = self.client.get('/financing/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_liquidation_instructions(self):
+        response = self.client.get('/liquidation/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_financing_summary(self):
+        response = self.client.get('/financing/10000000,40000000,20')
+        self.assertEqual(response.status_code, 200)
+
+    def test_liquidation_summary(self):
+        response = self.client.get('/liquidation/10000000')
+        self.assertEqual(response.status_code, 200)
