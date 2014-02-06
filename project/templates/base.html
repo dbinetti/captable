@@ -14,17 +14,15 @@
       <meta name="description" content="Cap Table open-source application.  Manage your cap tables and learn how financing structures affect you as a founder.">
       <meta name="author" content="David E. Binetti">
       <meta name="copyright" content="&copy; 2013, David E. Binetti">
+      <meta name="robots" content="noindex, nofollow">
       {# <meta name="google-site-verification" content="KCGliPeEClMgbq3Ytr5kLv4sZag4alHUBMjMt_y2Db4" /> #}
     {% endblock meta-tags %}
 
-    {% block robots %}
-      <meta name="robots" content="noindex, nofollow">
-    {% endblock robots %}
-
     {% block style-libraries %}
-      <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/css/bootstrap.min.css" rel="stylesheet">
-      <link href="{% static 'css/bootstrap-glyphicons.css' %}" rel="stylesheet" media="screen">
+      <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+      <!-- <link rel="stylesheet" href="static/css/bootstrap.css"> -->
       <link href="{% static 'css/main.css' %}" rel="stylesheet" media="screen">
+      {# <link rel="shortcut icon" href="static/ico/favicon.ico"> #}
     {% endblock style-libraries %}
 
     {% block styles %}
@@ -85,7 +83,9 @@
 
     {% block script-libraries %}
       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-      <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js"></script>
+      <!-- <script type="text/javascript" src="static/js/jquery.js"></script> -->
+      <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+      <!-- <script type="text/javascript" src="static/js/bootstrap.js"></script> -->
     {% endblock script-libraries %}
 
     {% block scripts %}
