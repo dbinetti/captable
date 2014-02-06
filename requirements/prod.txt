@@ -2,6 +2,6 @@
 
 boto==2.9.6
 django-storages==1.1.8
-gunicorn==17.5
-django-s3-folder-storage==0.1
-raven==3.4.1
+gunicorn==18.0
+django-s3-folder-storage==0.2
+raven==4.0.4

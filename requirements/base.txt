@@ -1,9 +1,8 @@
-distribute==0.6.36
-dj-database-url==0.2.1
-Django==1.5.1
-psycopg2==2.5.1
-python-dateutil==1.5
-South==0.8.1
+dj-database-url==0.2.2
+Django==1.6.1
+psycopg2==2.5.2
+python-dateutil==2.2
+South==0.8.4
 Unipath==1.0
-django-model-utils==1.4.0
-factory-boy==2.1.1
+django-model-utils==2.0
+factory-boy==2.3.1
