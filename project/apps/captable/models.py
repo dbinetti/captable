@@ -193,7 +193,7 @@ class Security(models.Model):
         preference here for convertibles as well.  If you can not determine
         what that preference will be in a default liquidation because it is
         not codified, then get that squared away with your investors immediately.""")
-    is_participating = models.BooleanField(help_text="""
+    is_participating = models.BooleanField(default=False, help_text="""
         If true, the peferred security participates along with common stock
         in addition to the liqudation preference.""")
     participation_cap = models.FloatField(blank=True, null=True, help_text="""
