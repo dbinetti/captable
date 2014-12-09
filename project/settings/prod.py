@@ -1,6 +1,6 @@
 from .base import *
 
-DEBUG = get_env_variable("DJANGO_DEBUG")
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()

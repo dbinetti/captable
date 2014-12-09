@@ -19,7 +19,7 @@
     </div><!--/jumbotron-->
     <h3>The application has five main views:</h3>
     <dl class='dl-horizontal'>
-      <dt>Summary</dt>
+      <dt><a href='{% url "summary" %}'>Summary</a></dt>
       <dd>This is the high-level view of the capitalization of the company.</dd>
 
       <dt><a href='{% url "financing_instructions" %}'>Financing</a></dt>
@@ -28,17 +28,17 @@
         capitalization.  It handles convertible debt conversions, prorata purchases,
         and option-pool expansions.</dd>
 
-      <dt>Liquidation</dt>
+      <dt><a href='{% url "liquidation_instructions" %}'>Liquidation</a></dt>
       <dd>This worksheet calculates the proceeds from a company sale.  It considers
         all liquidation preferences, participation, conversion ratios and other
         basic terms related to liquidation events.</dd>
 
       <dt>Items</dt>
-      <dd>Each item that constitutes the cap table (securites, investors, certificates,
+      <dd>Each item that constitutes the cap table (<a href='{% url "security" %}'>securities</a>, <a href='{% url "investor" %}'>investors</a>, <a href='{% url "certificate" %}'>certificates</a>,
         etc.) are available here through a REST-style interface if you want to see the
         raw data.</dd>
 
-      <dt>Admin</dt>
+      <dt><a href='{% url "admin" %}'>Admin</a></dt>
       <dd>Data entry and management are handled through the standard admin back-end,
         which can be accessed through the login/password 'admin/admin'.</dd>
     </dl>
