@@ -34,10 +34,6 @@ let me know.  I hope this tool will be used by entrepreneurs who are
 frustrated by Excel and find code a better vehicle by which to run
 financial calculations.
 
-Documentation
-=============
-For more information, including features, installation, tutorial, etc.,
-see the documentation at http://captable.rtfd.org.
 
 Example
 =======
