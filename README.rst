@@ -1,4 +1,8 @@
 
+**DEPRECATION NOTICE: This is no longer under active development.  However, if you're 
+interested in the internals of how cap tables work it's still worth cloning.**
+
+
 ========
 Captable
 ========
@@ -29,13 +33,3 @@ more about financing structure I would encourage you to read the source
 code.  I've included support for the most common terms that are used in
 financings with explanations throughout.
 
-If you have any suggestions for future improvements or find bugs please
-let me know.  I hope this tool will be used by entrepreneurs who are
-frustrated by Excel and find code a better vehicle by which to run
-financial calculations.
-
-
-Example
-=======
-If you prefer to learn by example I have an instance of the app running
-at http://captable.herokuapp.com.  The username/password is 'admin/admin'.
